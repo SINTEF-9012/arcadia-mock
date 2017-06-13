@@ -1,6 +1,10 @@
 
 # ARCADIA Mock
 
+[![wercker status](https://app.wercker.com/status/7afc51aae94fd1a3ab97518535e7c9eb/s/master "wercker status")](https://app.wercker.com/project/byKey/7afc51aae94fd1a3ab97518535e7c9eb)
+[![CodeCov](https://img.shields.io/codecov/c/github/SINTEF-9012/arcadia-mock/master.svg)](https://codecov.io/gh/SINTEF-9012/arcadia-mock)
+[![License](https://img.shields.io/github/license/SINTEF-9012/arcadia-mock.svg)]()
+
 This is a mock of the ARCADIA services, used for testing the TOSCA
 Arcadia plugin. It includes a set of REST services that mimics the
 ARCADIA ones, and a client API that eases integration with Python 2.7.
@@ -38,7 +42,6 @@ request specific pages.
 
 
 # Work Plan
-
 
 1. GET /about should returns the version, copyright and license
    
