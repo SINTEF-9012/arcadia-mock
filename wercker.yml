@@ -14,5 +14,5 @@ build:
     - script:
         name: Test & Upload code coverage
         code: |
-	   python setup.py test
-	   codecov	
+           python setup.py test
+           codecov      
