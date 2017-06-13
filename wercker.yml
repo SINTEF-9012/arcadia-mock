@@ -7,7 +7,7 @@ build:
         name: Setup virtual environment
         install_wheel: false 
 
-    - pip-install
+    - pip-install:
         name: Install Python packages
         packages_list: "codecov"
 
