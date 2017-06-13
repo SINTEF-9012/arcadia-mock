@@ -14,6 +14,6 @@ build:
     - script:
         name: Test & Upload code coverage
         code: |
-	   pip install -e .        # Install arcadiamock locally
+           pip install -e .        # Install arcadiamock locally
            python setup.py test
            codecov      
