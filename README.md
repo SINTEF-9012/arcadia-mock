@@ -1,8 +1,9 @@
 
 # ARCADIA Mock
 
-This is a mock of the ARCADIA services, used for testing the TOSCA Arcadia plugin. It includes a set
-of REST services that mimics the ARCADIA ones, and a client API that eases integration with Python 2.7.
+This is a mock of the ARCADIA services, used for testing the TOSCA
+Arcadia plugin. It includes a set of REST services that mimics the
+ARCADIA ones, and a client API that eases integration with Python 2.7.
 
 # Installation & Usage
 
@@ -21,8 +22,13 @@ Note that if you want to develop or modify the code, you may want to install it 
 
 # Work Plan
 
-1. GET /test should returns the version of 
+
+1. GET /about should returns the version, copyright and license
    
    1. Package and release as 0.0.1 
+   
+   2. Tests in place
+    
+   3. Coverage in place
 
 2. Make a map on the existing ARCADIA API
