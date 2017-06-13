@@ -1,0 +1,18 @@
+
+box: python:2.7
+
+build:
+  steps:
+    - virtualenv:
+        name: Setup virtual environment
+        install_wheel: false 
+
+    - pip-install
+        name: Install Python packages
+        packages_list: "codecov"
+
+    - script:
+        name: Test & Upload code coverage
+        code: |
+	   python setup.py test
+	   codecov	
