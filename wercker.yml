@@ -15,5 +15,7 @@ build:
         name: Test & Upload code coverage
         code: |
            pip install -e .        # Install arcadiamock locally
+           echo "import coverage; coverage.process_startup()" > $HOME/venv/Lib/site-packages/sitecustomize.py 
            coverage run setup.py test
+           coverage combine
            codecov      

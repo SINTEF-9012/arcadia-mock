@@ -97,9 +97,8 @@ class ArcadiaMocks:
         app.add_url_rule('/about', 'index', self.version)
         app.run()
 
-
-
 def main():
+    stdout.flush()
     settings = Settings.from_command_line(argv[1:])
     mocks = ArcadiaMocks(stdout)
     if settings.action == Action.START:
@@ -109,3 +108,6 @@ def main():
     else:
         print("Unsupported command!")
         
+
+if __name__ == "__main__":
+    main()

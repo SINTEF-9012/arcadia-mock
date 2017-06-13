@@ -13,7 +13,7 @@ from unittest import TestCase
 from requests import get
 from subprocess import Popen
 from time import sleep
-
+from os import environ
 
 class Pages:
     BASE = "http://localhost:5000"
@@ -33,11 +33,12 @@ class AcceptanceTests(TestCase):
         self.log_file = open("acceptance.log", "w")
         self.arcadia_mocks = Popen(["arcadiamock"], 
                                    stdout=self.log_file, 
-                                   stderr=self.log_file)
+                                   stderr=self.log_file,
+                                   env=environ.copy())
 
     def tearDown(self):
         self.log_file.close()
-        self.arcadia_mocks.kill()
+        self.arcadia_mocks.terminate()
 
     def test_about(self):
         response = self._fetch(Pages.ABOUT)
