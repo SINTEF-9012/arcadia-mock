@@ -10,7 +10,7 @@ ARCADIA ones, and a client API that eases integration with Python 2.7.
 This is a Python 2.7 application. To install it, run the followings commands (assuming you are running Linux-like OS):
 
 	$> cd my-working-directory
-	$> git clone arcadia-mock.git
+	$> git clone git@github.com:SINTEF-9012/arcadia-mock.git
 	$> cd arcadiamock
 	$> pip install .
 	$> arcadiamock
@@ -18,6 +18,23 @@ This is a Python 2.7 application. To install it, run the followings commands (as
 Note that if you want to develop or modify the code, you may want to install it using the `-e` option of pip, as:
 	
 	$> pip install -e .
+
+# Testing
+
+ARCADIA mocks comes with a test suite that checks whether its basic
+functionalities. You can run it with the following commands:
+
+	$> python setup.py test
+	
+In addition, you can measure the code coverage by running this test
+suite inside the 'coverage' tool.
+
+	$> coverage run setup.py test
+	$> coverage report -m
+
+The test suite includes some acceptance tests that take some time to
+run because they start an HTTP server in the background and then
+request specific pages.
 
 
 # Work Plan
