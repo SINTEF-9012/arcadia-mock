@@ -3,6 +3,7 @@
 
 [![wercker status](https://app.wercker.com/status/7afc51aae94fd1a3ab97518535e7c9eb/s/master "wercker status")](https://app.wercker.com/project/byKey/7afc51aae94fd1a3ab97518535e7c9eb)
 [![CodeCov](https://img.shields.io/codecov/c/github/SINTEF-9012/arcadia-mock/master.svg)](https://codecov.io/gh/SINTEF-9012/arcadia-mock)
+[![Codacy grade](https://img.shields.io/codacy/grade/5c06860e96d54742937e4bcbbc946f08.svg)](https://www.codacy.com/app/fchauvel/arcadia-mock)
 [![License](https://img.shields.io/github/license/SINTEF-9012/arcadia-mock.svg)]()
 
 This is a mock of the ARCADIA services, used for testing the TOSCA
