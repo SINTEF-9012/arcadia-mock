@@ -29,9 +29,6 @@ class ArcadiaMocksTests(TestCase):
             service=__SERVICE_NAME__)
         self.assertEqual(expected, output.getvalue())
 
-    def test_foo(self):
-        self.assertTrue(True)
-
 
 class SettingsTests(TestCase):
 
