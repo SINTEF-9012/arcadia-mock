@@ -35,21 +35,24 @@ In addition, you can measure the code coverage by running this test
 suite inside the 'coverage' tool.
 
 	$> coverage run setup.py test
+	$> coverage combine
 	$> coverage report -m
 
 The test suite includes some acceptance tests that take some time to
-run because they start an HTTP server in the background and then
+run because they spawn an HTTP server in the background and then
 request specific pages.
 
+For coverage to account for these integration tests, you must define
+the environment variable `COVERAGE_PROCESS_START` as follows:
+
+	$> export COVERAGE_PROCESS_START=".coveragerc"
+	
+You must as well include the following lines in the `sitecustomize.py`
+of your virtual environment, as follows:
+
+	$> echo "import coverage; coverage.process_startup()" > venv/lib/python2.7/site-packages/sitecustomize.py 
+	
 
 # Work Plan
-
-1. GET /about should returns the version, copyright and license
-   
-   1. Package and release as 0.0.1 
-   
-   2. Tests in place
-    
-   3. Coverage in place
 
 2. Make a map on the existing ARCADIA API
