@@ -106,7 +106,7 @@ def sigint_handler(signum, frame):
         
 def main():
     signal(SIGINT, sigint_handler)
-    stdout.flush()
+
     settings = Settings.from_command_line(argv[1:])
     mocks = ArcadiaMocks(stdout)
     if settings.action == Action.START:
@@ -116,6 +116,3 @@ def main():
     else:
         print("Unsupported command!")
         
-
-if __name__ == "__main__":
-    main()
