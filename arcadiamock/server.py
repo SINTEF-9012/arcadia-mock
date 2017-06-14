@@ -11,7 +11,8 @@
 
 from flask import Flask
 from argparse import ArgumentParser
-from sys import argv, stdout
+from sys import argv, stdout, exit
+from signal import signal, SIGINT
 
 from arcadiamock import __VERSION__, __SERVICE_NAME__, __LICENSE__
 
@@ -97,7 +98,14 @@ class ArcadiaMocks:
         app.add_url_rule('/about', 'index', self.version)
         app.run()
 
+
+def sigint_handler(signum, frame):
+    print "Ctrl+C pressed! That's all folks!"
+    stdout.flush()
+    exit()
+        
 def main():
+    signal(SIGINT, sigint_handler)
     stdout.flush()
     settings = Settings.from_command_line(argv[1:])
     mocks = ArcadiaMocks(stdout)
