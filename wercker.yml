@@ -20,3 +20,4 @@ build:
            coverage run setup.py test
            coverage combine
            codecov      
+	   cat acceptance.log
