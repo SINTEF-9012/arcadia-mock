@@ -11,7 +11,7 @@
 
 from flask import Flask
 from argparse import ArgumentParser
-from sys import argv, stdout, exit, platform
+from sys import argv, stdout, exit
 
 from arcadiamock import __VERSION__, __SERVICE_NAME__, __LICENSE__
 from arcadiamock.utils import on_exit
@@ -86,7 +86,8 @@ class ArcadiaMocks(object):
     def show_version(self):
         self._output.write(unicode(self.version()))
 
-    def version(self):
+    @staticmethod
+    def version():
         return ArcadiaMocks.ABOUT.format(
             version=__VERSION__,
             service=__SERVICE_NAME__,

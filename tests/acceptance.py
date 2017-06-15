@@ -12,11 +12,7 @@
 from unittest import TestCase
 from requests import get
 from requests.exceptions import ConnectionError
-from subprocess import Popen
 from time import sleep
-from signal import SIGTERM
-from sys import platform
-from os import kill
 
 from arcadiamock.utils import execute
 
