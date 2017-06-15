@@ -13,7 +13,6 @@ from unittest import TestCase
 from requests import get
 from requests.exceptions import ConnectionError
 from subprocess import Popen
-from signal import SIGINT
 from time import sleep
 
 
@@ -39,10 +38,7 @@ class AcceptanceTests(TestCase):
 
     def tearDown(self):
         self.log_file.close()
-        #if os.name == "nt":
         self.server.terminate()
-        #else:
-        #    self.server.send_signal(SIGINT)
         
     def test_about(self):
         response = self._fetch(Pages.ABOUT)
