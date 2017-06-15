@@ -13,24 +13,30 @@ from sys import platform
 
 
 def on_exit(handler):
+    """Bind the given handler on the termination events (Ctrl+C, SIGTERM
+    and the likes)
+    """
     if platform == "win32":
         from signal import signal, SIGBREAK
         signal(SIGBREAK, handler)
     else:
         from signal import signal, SIGTERM
         signal(SIGTERM, handler)
- 
 
-def spawn(command_line, log_file=None):
+
+def execute(command_line, log_file=None):
+    """Execute the given command so that it can be properly interrupted
+    on demand.
+    """
     if platform == "win32":
         from subprocess import CREATE_NEW_PROCESS_GROUP
-        process = Popen(command_line, 
-                        stdout=log_file, 
-                        stderr=log_file, 
+        process = Popen(command_line,
+                        stdout=log_file,
+                        stderr=log_file,
                         creationflags=CREATE_NEW_PROCESS_GROUP)
         return Win32Process(process)
-    process = Popen(command_line, 
-                    stdout=log_file, 
+    process = Popen(command_line,
+                    stdout=log_file,
                     stderr=log_file)
     return PosixProcess(process)
 

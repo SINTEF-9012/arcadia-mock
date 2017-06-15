@@ -16,12 +16,12 @@ from sys import argv, stdout, exit, platform
 from arcadiamock import __VERSION__, __SERVICE_NAME__, __LICENSE__
 from arcadiamock.utils import on_exit
 
-class Action:
+class Action(object):
     SHOW_VERSION = 1,
     START = 2
 
 
-class Settings:
+class Settings(object):
     """
     Contains the options/arguments given on the command line.
     """
@@ -33,29 +33,29 @@ class Settings:
     @staticmethod
     def from_command_line(arguments):
         parser = ArgumentParser(description='ARCADIA Mock')
-        parser.add_argument('--version', "-v", 
+        parser.add_argument('--version', "-v",
                             action="store_const",
                             dest="action",
                             const=Action.SHOW_VERSION,
                             help='show the version')
-        parser.add_argument('-l','--log-file', 
+        parser.add_argument('-l','--log-file',
                             help='The name of the log file to use')
-        parser.add_argument('-p','--port', 
+        parser.add_argument('-p','--port',
                             help='The port number on which HTTP requests are expected')
         parser.set_defaults(
             action=Settings.DEFAULT_ACTION,
             log_file=Settings.DEFAULT_LOG_FILE,
             port=Settings.DEFAULT_PORT
         )
-        
+
         values = parser.parse_args(arguments)
         return Settings(int(values.port), values.log_file, values.action)
 
     def __init__(self, port, log_file, action):
-        self._port = port 
+        self._port = port
         self._log_file = log_file
         self._action = action
-        
+
     @property
     def action(self):
         return self._action
@@ -69,7 +69,7 @@ class Settings:
         return self._port
 
 
-class ArcadiaMocks:
+class ArcadiaMocks(object):
     """
     Facade class that offers all functionalities available from the
     command line (e.g., show_version, start).
@@ -82,7 +82,7 @@ class ArcadiaMocks:
 
     def __init__(self, output):
         self._output = output
-    
+
     def show_version(self):
         self._output.write(unicode(self.version()))
 
@@ -99,10 +99,16 @@ class ArcadiaMocks:
 
 
 def shutdown(signum, frame):
+    """
+    Let the application close properly when the user press
+    Ctrl+C. Without, coverage is interrupted before it can write down
+    coverage data.
+    """
     print "Ctrl+C pressed! That's all folks!"
     stdout.flush()
     exit()
-        
+
+
 def main():
     on_exit(shutdown)
 
@@ -114,4 +120,4 @@ def main():
         mocks.show_version()
     else:
         print("Unsupported command!")
-        
+

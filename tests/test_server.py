@@ -72,6 +72,3 @@ class SettingsTests(TestCase):
         settings = Settings.from_command_line(["-l", log_file])
         self.assertEqual(log_file, settings.log_file)
 
-
-
-
