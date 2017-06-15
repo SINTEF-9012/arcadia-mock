@@ -99,13 +99,17 @@ class ArcadiaMocks:
         app.run()
 
 
-def sigint_handler(signum, frame):
+def shutdown(signum, frame):
     print "Ctrl+C pressed! That's all folks!"
     stdout.flush()
     exit()
+
         
 def main():
-    signal(SIGINT, sigint_handler)
+    signal(SIGINT, shutdown)
+    if os.name == "nt":
+        from signal import CTRL_C_EVENT
+        signal(CTRL_C_EVENT, shutdown)
 
     settings = Settings.from_command_line(argv[1:])
     mocks = ArcadiaMocks(stdout)

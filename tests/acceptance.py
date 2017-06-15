@@ -11,10 +11,10 @@
 
 from unittest import TestCase
 from requests import get
+from requests.exceptions import ConnectionError
 from subprocess import Popen
 from signal import SIGINT
 from time import sleep
-from os import environ
 
 
 class Pages:
@@ -39,8 +39,11 @@ class AcceptanceTests(TestCase):
 
     def tearDown(self):
         self.log_file.close()
-        self.server.send_signal(SIGINT)
-
+        #if os.name == "nt":
+        self.server.terminate()
+        #else:
+        #    self.server.send_signal(SIGINT)
+        
     def test_about(self):
         response = self._fetch(Pages.ABOUT)
         self.assertEqual(200, response.status_code)
@@ -51,7 +54,7 @@ class AcceptanceTests(TestCase):
             try:
                 response = get(page)
                 return response
-            except:
+            except ConnectionError:
                 sleep(self.DELAY)
                 attempt -= 1
         message = "Cannot access '{page}' after {attempts} attempts.".format(
