@@ -11,12 +11,10 @@
 
 from flask import Flask
 from argparse import ArgumentParser
-from sys import argv, stdout, exit
-from signal import signal, SIGINT, SIGTERM
-import os
+from sys import argv, stdout, exit, platform
 
 from arcadiamock import __VERSION__, __SERVICE_NAME__, __LICENSE__
-
+from arcadiamock.utils import on_exit
 
 class Action:
     SHOW_VERSION = 1,
@@ -104,17 +102,10 @@ def shutdown(signum, frame):
     print "Ctrl+C pressed! That's all folks!"
     stdout.flush()
     exit()
-
-def setup_signal_handlers():
-    signal(SIGINT, shutdown)
-    signal(SIGTERM, shutdown)
-    if os.name == "nt":
-        from signal import CTRL_C_EVENT
-        signal(CTRL_C_EVENT, shutdown)
-
+        
 def main():
-    setup_signal_handlers()
-    
+    on_exit(shutdown)
+
     settings = Settings.from_command_line(argv[1:])
     mocks = ArcadiaMocks(stdout)
     if settings.action == Action.START:
