@@ -1,5 +1,15 @@
 #!/usr/bin/env python
 
+#
+# ARCADIA Mocks
+#
+# Copyright (C) 2017 SINTEF Digital
+# All rights reserved.
+#
+# This software may be modified and distributed under the terms
+# of the MIT license.  See the LICENSE file for details.
+#
+
 from setuptools import setup
 
 from arcadiamock import __VERSION__

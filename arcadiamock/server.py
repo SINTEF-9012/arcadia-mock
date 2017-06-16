@@ -16,6 +16,7 @@ from sys import argv, stdout, exit
 from arcadiamock import __VERSION__, __SERVICE_NAME__, __LICENSE__
 from arcadiamock.utils import on_exit
 
+
 class Action(object):
     SHOW_VERSION = 1,
     START = 2
@@ -80,8 +81,9 @@ class ArcadiaMocks(object):
     Copyright (C) SINTEF 2017
     """
 
-    def __init__(self, output):
+    def __init__(self, output, settings):
         self._output = output
+        self._settings = settings
 
     def show_version(self):
         self._output.write(unicode(self.version()))
@@ -96,12 +98,12 @@ class ArcadiaMocks(object):
     def start(self):
         app = Flask(__SERVICE_NAME__)
         app.add_url_rule('/about', 'index', self.version)
-        app.run()
+        app.run(port=self._settings.port)
 
 
 def shutdown(signum, frame):
     """
-    Let the application close properly when the user press
+    Let the application close properly when the user presses
     Ctrl+C. Without, coverage is interrupted before it can write down
     coverage data.
     """
@@ -114,7 +116,7 @@ def main():
     on_exit(shutdown)
 
     settings = Settings.from_command_line(argv[1:])
-    mocks = ArcadiaMocks(stdout)
+    mocks = ArcadiaMocks(stdout, settings)
     if settings.action == Action.START:
         mocks.start()
     elif settings.action == Action.SHOW_VERSION:

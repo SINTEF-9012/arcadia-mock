@@ -16,9 +16,27 @@ from time import sleep
 
 from arcadiamock.utils import execute
 
-class Pages:
-    BASE = "http://localhost:5000"
-    ABOUT = BASE + "/about"
+class Pages(object):
+
+    URL = "http://{hostname}:{port}"
+    DEFAULT_HOST_NAME = "localhost"
+    DEFAULT_PORT = 5000
+
+    ABOUT = "/about"
+
+    def __init__(self, hostname=None, port=None):
+        self._hostname = hostname or self.DEFAULT_HOST_NAME
+        self._port = port or self.DEFAULT_PORT
+
+    @property
+    def base_url(self):
+        return self.URL.format(
+            hostname=self._hostname,
+            port=self._port)
+
+    @property
+    def about(self):
+        return self.base_url + self.ABOUT
 
 
 class AcceptanceTests(TestCase):
@@ -27,24 +45,28 @@ class AcceptanceTests(TestCase):
     and check responses.
     """
 
-    START_SERVER_COMMAND = ["arcadiamock"]
+    PORT = 5000
+
     LOG_FILE = "acceptance.log"
     ERROR_SERVER_IS_DOWN = "The arcadia-mock server has stopped. Check '{log}'"
-    ERROR_CANNOT_GET_PAGE = "Cannot access '{page}' after {attempts} attempts."
+    ERROR_CANNOT_GET_PAGE = "Cannot access '{page}' ({attempts} attempts)."
 
     MAX_ATTEMPTS = 3
     DELAY = 5
 
     def setUp(self):
+        self.pages = Pages(port=self.PORT)
         self.log_file = open(self.LOG_FILE, "w")
-        self.server = execute(self.START_SERVER_COMMAND, self.log_file)
+        self.server = execute(
+            ["arcadiamock", "--port", str(self.PORT)],
+            self.log_file)
 
     def tearDown(self):
         self.log_file.close()
         self.server.terminate()
 
     def test_about(self):
-        response = self._fetch(Pages.ABOUT)
+        response = self._fetch(self.pages.about)
         self.assertEqual(200, response.status_code)
 
     def _fetch(self, page):
@@ -56,7 +78,9 @@ class AcceptanceTests(TestCase):
                 return get(page)
             except ConnectionError:
                 sleep(self.DELAY)
-        message = self.ERROR_CANNOT_GET_PAGE.format(page=page, attempts=self.MAX_ATTEMPTS)
+
+        message = self.ERROR_CANNOT_GET_PAGE.format(page=page,
+                                                    attempts=self.MAX_ATTEMPTS)
         self.fail(message)
 
     def _ensure_server_is_alive(self):

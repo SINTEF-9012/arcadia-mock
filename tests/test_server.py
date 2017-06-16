@@ -19,7 +19,8 @@ class ArcadiaMocksTests(TestCase):
 
     def test_show_version(self):
         output = StringIO()
-        mocks = ArcadiaMocks(output)
+        settings = Settings(5000, output, Action.SHOW_VERSION)
+        mocks = ArcadiaMocks(output, settings)
 
         mocks.show_version()
 
