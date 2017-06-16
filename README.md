@@ -10,7 +10,7 @@ This is a mock of the ARCADIA services, used for testing the TOSCA
 Arcadia plugin. It includes a set of REST services that mimics the
 ARCADIA ones, and a client API that eases integration with Python 2.7.
 
-# Installation & Usage
+## Installation & Usage
 
 This is a Python 2.7 application. To install it, run the followings commands (assuming you are running Linux-like OS):
 
@@ -24,7 +24,7 @@ Note that if you want to develop or modify the code, you may want to install it 
 	
 	$> pip install -e .
 
-# Testing
+## Testing
 
 ARCADIA mocks comes with a test suite that checks whether its basic
 functionalities. You can run it with the following commands:
@@ -52,7 +52,15 @@ of your virtual environment, as follows:
 
 	$> echo "import coverage; coverage.process_startup()" > venv/lib/python2.7/site-packages/sitecustomize.py 
 	
+## Releasing
 
-# Work Plan
+Create a tag using git. For instance for the version 1.2.3. Not that
+the use of the `--tags` options when pushing.
+
+	$> git tag -a v1.2.3 -m "Version 1.2.3"
+	$> git push origin --tags
+		
+
+## Work Plan
 
 2. Make a map on the existing ARCADIA API
