@@ -29,6 +29,7 @@ class Settings(object):
 
     DEFAULT_ACTION = Action.START
     DEFAULT_LOG_FILE = "arcadiamock.log"
+    DEFAULT_HOSTNAME = "127.0.0.1"
     DEFAULT_PORT = "8080"
 
     @staticmethod
@@ -39,6 +40,8 @@ class Settings(object):
                             dest="action",
                             const=Action.SHOW_VERSION,
                             help='show the version')
+        parser.add_argument('-n','--name',
+                            help='The name of the host which should serve arcadia mocks')
         parser.add_argument('-l','--log-file',
                             help='The name of the log file to use')
         parser.add_argument('-p','--port',
@@ -46,16 +49,25 @@ class Settings(object):
         parser.set_defaults(
             action=Settings.DEFAULT_ACTION,
             log_file=Settings.DEFAULT_LOG_FILE,
-            port=Settings.DEFAULT_PORT
+            port=Settings.DEFAULT_PORT,
+            name=Settings.DEFAULT_HOSTNAME
         )
 
         values = parser.parse_args(arguments)
-        return Settings(int(values.port), values.log_file, values.action)
+        return Settings(values.name,
+                        int(values.port),
+                        values.log_file,
+                        values.action)
 
-    def __init__(self, port, log_file, action):
+    def __init__(self, hostname, port, log_file, action):
+        self._hostname = hostname
         self._port = port
         self._log_file = log_file
         self._action = action
+
+    @property
+    def hostname(self):
+        return self._hostname
 
     @property
     def action(self):
@@ -98,7 +110,8 @@ class ArcadiaMocks(object):
     def start(self):
         app = Flask(__SERVICE_NAME__)
         app.add_url_rule('/about', 'index', self.version)
-        app.run(port=self._settings.port)
+        app.run(host=self._settings.hostname,
+                port=self._settings.port)
 
 
 def shutdown(signum, frame):

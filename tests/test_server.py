@@ -19,7 +19,7 @@ class ArcadiaMocksTests(TestCase):
 
     def test_show_version(self):
         output = StringIO()
-        settings = Settings(5000, output, Action.SHOW_VERSION)
+        settings = Settings("0.0.0.0", 5000, output, Action.SHOW_VERSION)
         mocks = ArcadiaMocks(output, settings)
 
         mocks.show_version()
@@ -44,6 +44,20 @@ class SettingsTests(TestCase):
     def test_show_version_short_format(self):
         settings = Settings.from_command_line(["-v"])
         self.assertEqual(Action.SHOW_VERSION, settings.action)
+
+    def test_default_hostname(self):
+        settings = Settings.from_command_line([])
+        self.assertEquals(Settings.DEFAULT_HOSTNAME, settings.hostname)
+
+    def test_default_hostname_long_format(self):
+        hostname = "0.0.0.0"
+        settings = Settings.from_command_line(["--name", hostname])
+        self.assertEquals(hostname, settings.hostname)
+
+    def test_default_hostname_short_format(self):
+        hostname = "0.0.0.0"
+        settings = Settings.from_command_line(["-n", hostname])
+        self.assertEquals(hostname, settings.hostname)
 
     def test_default_port_number(self):
         settings = Settings.from_command_line([])

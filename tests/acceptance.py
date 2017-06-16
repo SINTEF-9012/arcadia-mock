@@ -58,7 +58,7 @@ class AcceptanceTests(TestCase):
         self.pages = Pages(port=self.PORT)
         self.log_file = open(self.LOG_FILE, "w")
         self.server = execute(
-            ["arcadiamock", "--port", str(self.PORT)],
+            ["arcadiamock", "--name", "127.0.0.1", "--port", str(self.PORT)],
             self.log_file)
 
     def tearDown(self):
