@@ -9,12 +9,14 @@
 #
 
 
-from flask import Flask
+from flask import Flask, request
 from argparse import ArgumentParser
 from sys import argv, stdout, exit
 
 from arcadiamock import __VERSION__, __SERVICE_NAME__, __LICENSE__
 from arcadiamock.utils import on_exit
+from arcadiamock.servicegraphs import Store, ServiceGraph, Node
+from arcadiamock.adapters import XMLPrinter
 
 
 class Action(object):
@@ -82,6 +84,11 @@ class Settings(object):
         return self._port
 
 
+class MimeTypes(object):
+    JSON = "application/json"
+    XML = "application/xml"
+
+
 class ArcadiaMocks(object):
     """
     Facade class that offers all functionalities available from the
@@ -96,6 +103,12 @@ class ArcadiaMocks(object):
     def __init__(self, output, settings):
         self._output = output
         self._settings = settings
+        self._writers = {
+            MimeTypes.XML: XMLPrinter(),
+            MimeTypes.JSON: "{ \"servicegraphs\": [] }"
+        }
+        self._store = Store()
+        self._store.add_service_graph(ServiceGraph(nodes=[Node(12, "foo")]))
 
     def show_version(self):
         self._output.write(unicode(self.version()))
@@ -107,9 +120,18 @@ class ArcadiaMocks(object):
             service=__SERVICE_NAME__,
             license=__LICENSE__)
 
+    def service_graphs(self):
+        service_graphs = self._store.all_service_graphs()
+        return service_graphs[0].accept(self._writer()).as_text()
+
+    def _writer(self):
+        return self._writers.get(request.accept_mimetypes.best,
+                                 self._writers[MimeTypes.JSON])
+
     def start(self):
         app = Flask(__SERVICE_NAME__)
         app.add_url_rule('/about', 'index', self.version)
+        app.add_url_rule('/service_graphs', 'service_graphs', self.service_graphs)
         app.run(host=self._settings.hostname,
                 port=self._settings.port)
 
