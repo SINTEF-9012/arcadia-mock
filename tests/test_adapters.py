@@ -12,7 +12,7 @@
 from unittest import TestCase
 
 
-from arcadiamock.servicegraphs import ServiceGraph, Node
+from arcadiamock.servicegraphs import ServiceGraph, Node, About
 from arcadiamock.adapters import XMLPrinter, XMLParser
 
 
@@ -87,6 +87,18 @@ class XMLPrinterTests(TestCase):
 
     def setUp(self):
         self.printer = XMLPrinter()
+
+    def test_printing_about_information(self):
+        about = About("foo", "1.3.2", "MIT")
+
+        xml = about.accept(self.printer)
+
+        expected_xml = "<about>"\
+                       "<name>foo</name>" \
+                       "<version>1.3.2</version>" \
+                       "<license>MIT</license>" \
+                       "</about>"
+        self.assertEqual(expected_xml, xml.as_text())
 
     def test_printing_service_graph(self):
         service_graph = ServiceGraph(

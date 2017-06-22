@@ -13,6 +13,8 @@ from requests import get, Request, Session
 from requests.exceptions import ConnectionError
 from time import sleep
 
+from arcadiamock.adapters import XMLParser
+
 
 class Client(object):
 
@@ -26,6 +28,7 @@ class Client(object):
         self._headers = {
             "accept": "application/xml"
         }
+        self._parser = XMLParser()
 
     def service_graphs(self):
         response = self._fetch(self._url_of("/service_graphs"))
@@ -33,7 +36,7 @@ class Client(object):
 
     def about(self):
         response = self._fetch(self._url_of("/about"))
-        return response
+        return self._parser.about_from(response.text)
 
     def _url_of(self, page):
         return self._base_url + page

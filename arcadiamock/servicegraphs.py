@@ -9,10 +9,19 @@
 #
 
 
+from arcadiamock import __VERSION__, __SERVICE_NAME__, __LICENSE__
+
+
 class Store(object):
 
     def __init__(self):
         self._service_graphs = []
+
+    def about(self):
+        return About(
+            __SERVICE_NAME__,
+            __VERSION__,
+            __LICENSE__)
 
     def add_service_graph(self, service_graph):
         self._service_graphs.append(service_graph)
@@ -23,11 +32,47 @@ class Store(object):
 
 class Visitor(object):
 
+    def visit_about(self, name, version, license):
+        pass
+
     def visit_service_graph(self, nodes, policy, metadata):
         pass
 
     def visit_node(nid, cnid):
         pass
+
+
+class DomainObject(object):
+    """
+    Capabilities required for all domain object (i.e., being visitable).
+    """
+
+    def accept(self, visitor):
+        pass
+
+
+class About(DomainObject):
+
+    def __init__(self, name, version, code_license):
+        super(About, self).__init__()
+        self._name = name
+        self._version = version
+        self._license = code_license
+
+    def accept(self, visitor):
+        return visitor.visit_about(self._name, self._version, self._license)
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def version(self):
+        return self._version
+
+    @property
+    def license(self):
+        return self._license
 
 
 class ServiceGraph(object):

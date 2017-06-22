@@ -16,7 +16,7 @@ from sys import argv, stdout, exit
 from arcadiamock import __VERSION__, __SERVICE_NAME__, __LICENSE__
 from arcadiamock.utils import on_exit
 from arcadiamock.servicegraphs import Store, ServiceGraph, Node
-from arcadiamock.adapters import XMLPrinter
+from arcadiamock.adapters import MimeTypes, XMLPrinter, TextPrinter
 
 
 class Action(object):
@@ -84,41 +84,19 @@ class Settings(object):
         return self._port
 
 
-class MimeTypes(object):
-    JSON = "application/json"
-    XML = "application/xml"
+class RESTServer(object):
 
-
-class ArcadiaMocks(object):
-    """
-    Facade class that offers all functionalities available from the
-    command line (e.g., show_version, start).
-    """
-
-    ABOUT = """
-    {service} v{version} -- {license}
-    Copyright (C) SINTEF 2017
-    """
-
-    def __init__(self, output, settings):
-        self._output = output
-        self._settings = settings
+    def __init__(self, store):
         self._writers = {
             MimeTypes.XML: XMLPrinter(),
             MimeTypes.JSON: "{ \"servicegraphs\": [] }"
         }
-        self._store = Store()
+        self._store = store
         self._store.add_service_graph(ServiceGraph(nodes=[Node(12, "foo")]))
 
-    def show_version(self):
-        self._output.write(unicode(self.version()))
-
-    @staticmethod
-    def version():
-        return ArcadiaMocks.ABOUT.format(
-            version=__VERSION__,
-            service=__SERVICE_NAME__,
-            license=__LICENSE__)
+    def about(self):
+        about = self._store.about()
+        return about.accept(self._writer()).as_text()
 
     def service_graphs(self):
         service_graphs = self._store.all_service_graphs()
@@ -128,34 +106,46 @@ class ArcadiaMocks(object):
         return self._writers.get(request.accept_mimetypes.best,
                                  self._writers[MimeTypes.JSON])
 
-    def start(self):
+    def start(self, host, port):
         app = Flask(__SERVICE_NAME__)
-        app.add_url_rule('/about', 'index', self.version)
+        app.add_url_rule('/about', 'index', self.about)
         app.add_url_rule('/service_graphs', 'service_graphs', self.service_graphs)
-        app.run(host=self._settings.hostname,
-                port=self._settings.port)
+        app.run(host=host, port=port)
 
 
-def shutdown(signum, frame):
-    """
-    Let the application close properly when the user presses
-    Ctrl+C. Without, coverage is interrupted before it can write down
-    coverage data.
-    """
-    print "Ctrl+C pressed! That's all folks!"
-    stdout.flush()
-    exit()
+class CLI(object):
+
+    def __init__(self, settings, output):
+        self._settings = settings
+        self._output = output
+        self._store = Store()
+
+    def show_version(self):
+        about = self._store.about()
+        self._output.write(unicode(about.accept(TextPrinter())))
+
+    def start_server(self):
+        server = RESTServer(self._store)
+        server.start(host=self._settings.hostname,
+                     port=self._settings.port)
+
+    def stop_server(self, signal, frame):
+        # Let the process terminate properly, which in turn, allows
+        # coverage data to be writtem to disk.
+        print "Ctrl+C pressed! That's all folks!"
+        stdout.flush()
+        exit()
 
 
 def main():
-    on_exit(shutdown)
-
     settings = Settings.from_command_line(argv[1:])
-    mocks = ArcadiaMocks(stdout, settings)
-    if settings.action == Action.START:
-        mocks.start()
-    elif settings.action == Action.SHOW_VERSION:
-        mocks.show_version()
+
+    cli = CLI(settings, stdout)
+    if settings.action == Action.SHOW_VERSION:
+        cli.show_version()
+
     else:
-        print("Unsupported command!")
+        # Set up handlers for Ctrl+C and other termination signals
+        on_exit(cli.stop_server)
+        cli.start_server()
 

@@ -11,6 +11,7 @@
 
 from unittest import TestCase
 
+from arcadiamock import __VERSION__
 from arcadiamock.utils import execute
 from arcadiamock.client import Client
 
@@ -41,8 +42,8 @@ class AcceptanceTests(TestCase):
 
     def test_fetch_about_information(self):
         self._ensure_server_is_alive()
-        response = self.client.about()
-        self.assertEqual(200, response.status_code)
+        about = self.client.about()
+        self.assertEqual(__VERSION__, about.version)
 
     def test_fetch_service_graphs_as_xml(self):
         self._ensure_server_is_alive()

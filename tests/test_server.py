@@ -12,19 +12,20 @@ from unittest import TestCase
 from io import StringIO
 
 from arcadiamock import __VERSION__, __SERVICE_NAME__, __LICENSE__
-from arcadiamock.server import ArcadiaMocks, Settings, Action
+from arcadiamock.server import CLI, Settings, Action
+from arcadiamock.adapters import TextPrinter
 
 
-class ArcadiaMocksTests(TestCase):
+class CLITests(TestCase):
 
     def test_show_version(self):
         output = StringIO()
         settings = Settings("0.0.0.0", 5000, output, Action.SHOW_VERSION)
-        mocks = ArcadiaMocks(output, settings)
+        cli = CLI(settings, output)
 
-        mocks.show_version()
+        cli.show_version()
 
-        expected = ArcadiaMocks.ABOUT.format(
+        expected = TextPrinter.ABOUT.format(
             version=__VERSION__,
             license=__LICENSE__,
             service=__SERVICE_NAME__)

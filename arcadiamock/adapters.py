@@ -9,9 +9,14 @@
 #
 
 
-from arcadiamock.servicegraphs import Visitor, Node, Policy, ServiceGraph
+from arcadiamock.servicegraphs import Visitor, Node, Policy, ServiceGraph, About
 
 import xml.etree.ElementTree as etree
+
+
+class MimeTypes(object):
+    JSON = "application/json"
+    XML = "application/xml"
 
 
 class XMLNode(object):
@@ -25,6 +30,16 @@ class XMLNode(object):
 
 
 class XMLPrinter(Visitor):
+
+    def visit_about(self, name, version, license):
+        root = etree.Element("about")
+        name_node = etree.SubElement(root, "name")
+        name_node.text = name
+        version_node = etree.SubElement(root, "version")
+        version_node.text = version
+        license_node = etree.SubElement(root, "license")
+        license_node.text = license
+        return XMLNode(root)
 
     def visit_service_graph(self, nodes, policy, metadata):
         root =  etree.Element("ServiceGraph")
@@ -41,13 +56,23 @@ class XMLPrinter(Visitor):
         cnid_node.text = str(cnid)
         return XMLNode(root)
 
-    
+
 class XMLParser(object):
+
+    def about_from(self, text):
+        node = etree.fromstring(text)
+        return self._about_from_xml(node)
+
+    def _about_from_xml(self, node):
+        name = node.find("name").text
+        version = node.find("version").text
+        license = node.find("license").text
+        return About(name, version, license)
 
     def graph_node_from(self, text):
         node = etree.fromstring(text)
         return self._node_from_xml(node)
-    
+
     def _node_from_xml(self, node):
         nid = node.find("NID").text
         cnid = node.find("CNID").text
@@ -64,7 +89,7 @@ class XMLParser(object):
 
     def service_graph_from(self, text):
         service_graph = etree.fromstring(text)
-        
+
         nodes = []
         for each_node in service_graph.find("GraphNodeDescriptor"):
             nodes.append(self._node_from_xml(each_node))
@@ -72,6 +97,23 @@ class XMLParser(object):
         policies = []
         for each_policy in service_graph.find("RuntimePolicyDescriptor"):
             policies.append(self._policy_from_xml(each_policy))
-            
+
         return ServiceGraph(nodes, policies)
-            
+
+
+class TextPrinter(Visitor):
+    """
+    Format domain objects in raw text, which can be displayed on the
+    console for instance.
+    """
+
+    ABOUT = """
+    {service} v{version} -- {license}
+    Copyright (C) SINTEF 2017
+    """
+
+    def visit_about(self, name, version, license):
+        return self.ABOUT.format(service=name,
+                                 version=version,
+                                 license=license)
+
