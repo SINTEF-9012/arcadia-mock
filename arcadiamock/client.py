@@ -9,7 +9,7 @@
 #
 
 
-from requests import get, Request, Session
+from requests import Request, Session
 from requests.exceptions import ConnectionError
 from time import sleep
 

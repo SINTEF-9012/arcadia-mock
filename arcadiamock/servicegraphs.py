@@ -17,7 +17,8 @@ class Store(object):
     def __init__(self):
         self._service_graphs = []
 
-    def about(self):
+    @staticmethod
+    def about():
         return About(
             __SERVICE_NAME__,
             __VERSION__,
@@ -32,7 +33,7 @@ class Store(object):
 
 class Visitor(object):
 
-    def visit_about(self, name, version, license):
+    def visit_about(self, name, version, code_license):
         pass
 
     def visit_service_graph(self, nodes, policy, metadata):
@@ -41,7 +42,7 @@ class Visitor(object):
     def visit_service_graph_list(self, graphs):
         pass
 
-    def visit_node(nid, cnid):
+    def visit_node(self, nid, cnid):
         pass
 
 
@@ -60,10 +61,13 @@ class About(DomainObject):
         super(About, self).__init__()
         self._name = name
         self._version = version
-        self._license = code_license
+        self._code_license = code_license
 
     def accept(self, visitor):
-        return visitor.visit_about(self._name, self._version, self._license)
+        return visitor.visit_about(
+            self._name,
+            self._version,
+            self._code_license)
 
     @property
     def name(self):
@@ -74,8 +78,8 @@ class About(DomainObject):
         return self._version
 
     @property
-    def license(self):
-        return self._license
+    def code_license(self):
+        return self._code_license
 
 
 class ServiceGraphList(DomainObject):

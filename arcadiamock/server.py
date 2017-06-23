@@ -13,7 +13,7 @@ from flask import Flask, request
 from argparse import ArgumentParser
 from sys import argv, stdout, exit
 
-from arcadiamock import __VERSION__, __SERVICE_NAME__, __LICENSE__
+from arcadiamock import __SERVICE_NAME__
 from arcadiamock.utils import on_exit
 from arcadiamock.servicegraphs import Store, ServiceGraph, Node
 from arcadiamock.adapters import MimeTypes, XMLPrinter, XMLParser, TextPrinter
@@ -103,9 +103,7 @@ class RESTServer(object):
         return service_graphs.accept(self._writer()).as_text()
 
     def register_service_graph(self):
-        payload = request.data
-        print "PAYLOAD:", payload
-        service_graph = XMLParser().service_graph_from(payload)
+        service_graph = XMLParser().service_graph_from(request.data)
         self._store.add_service_graph(service_graph)
         return ("", 204)
 
@@ -115,9 +113,13 @@ class RESTServer(object):
 
     def start(self, host, port):
         app = Flask(__SERVICE_NAME__)
-        app.add_url_rule('/about', 'index', self.about)
-        app.add_url_rule('/service_graphs', 'service_graphs', self.service_graphs)
-        app.add_url_rule("/register", methods=["POST"], view_func=self.register_service_graph)
+        app.add_url_rule('/about',
+                         view_func=self.about)
+        app.add_url_rule('/service_graphs',
+                         view_func=self.service_graphs)
+        app.add_url_rule("/register",
+                         methods=["POST"],
+                         view_func=self.register_service_graph)
         app.run(host=host, port=port)
 
 
@@ -137,7 +139,8 @@ class CLI(object):
         server.start(host=self._settings.hostname,
                      port=self._settings.port)
 
-    def stop_server(self, signal, frame):
+    @staticmethod
+    def stop_server(signal, frame):
         # Let the process terminate properly, which in turn, allows
         # coverage data to be writtem to disk.
         print "Ctrl+C pressed! That's all folks!"

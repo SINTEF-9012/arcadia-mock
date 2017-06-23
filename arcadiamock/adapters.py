@@ -31,9 +31,9 @@ class XMLNode(object):
 
 class XMLPrinter(Visitor):
 
-    def visit_service_graph_list(self, service_graphs):
+    def visit_service_graph_list(self, graphs):
         root = etree.Element("ServiceGraphs")
-        for each_graph in service_graphs:
+        for each_graph in graphs:
             root.append(each_graph.accept(self)._root)
         return XMLNode(root)
 
@@ -69,7 +69,8 @@ class XMLParser(object):
         node = etree.fromstring(text)
         return self._about_from_xml(node)
 
-    def _about_from_xml(self, node):
+    @staticmethod
+    def _about_from_xml(node):
         name = node.find("name").text
         version = node.find("version").text
         license = node.find("license").text
@@ -79,7 +80,8 @@ class XMLParser(object):
         node = etree.fromstring(text)
         return self._node_from_xml(node)
 
-    def _node_from_xml(self, node):
+    @staticmethod
+    def _node_from_xml(node):
         nid = node.find("NID").text
         cnid = node.find("CNID").text
         return Node(nid, cnid);
@@ -88,7 +90,8 @@ class XMLParser(object):
         policy = etree.fromstring(text)
         return self._policy_from_xml(policy)
 
-    def _policy_from_xml(self, policy):
+    @staticmethod
+    def _policy_from_xml(policy):
         rpid = policy.find("RPID").text
         name = policy.find("RPName").text
         return Policy(rpid, name)
