@@ -20,14 +20,14 @@ class CLITests(TestCase):
 
     def test_show_version(self):
         output = StringIO()
-        settings = Settings("0.0.0.0", 5000, output, Action.SHOW_VERSION)
+        settings = Settings("127.0.0.1", 5000, output, Action.SHOW_VERSION)
         cli = CLI(settings, output)
 
         cli.show_version()
 
         expected = TextPrinter.ABOUT.format(
             version=__VERSION__,
-            license=__LICENSE__,
+            code_license=__LICENSE__,
             service=__SERVICE_NAME__)
         self.assertEqual(expected, output.getvalue())
 
@@ -51,12 +51,12 @@ class SettingsTests(TestCase):
         self.assertEquals(Settings.DEFAULT_HOSTNAME, settings.hostname)
 
     def test_default_hostname_long_format(self):
-        hostname = "0.0.0.0"
+        hostname = "127.0.0.1"
         settings = Settings.from_command_line(["--name", hostname])
         self.assertEquals(hostname, settings.hostname)
 
     def test_default_hostname_short_format(self):
-        hostname = "0.0.0.0"
+        hostname = "127.0.0.1"
         settings = Settings.from_command_line(["-n", hostname])
         self.assertEquals(hostname, settings.hostname)
 

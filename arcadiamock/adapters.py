@@ -37,14 +37,14 @@ class XMLPrinter(Visitor):
             root.append(each_graph.accept(self)._root)
         return XMLNode(root)
 
-    def visit_about(self, name, version, license):
+    def visit_about(self, name, version, code_license):
         root = etree.Element("about")
         name_node = etree.SubElement(root, "name")
         name_node.text = name
         version_node = etree.SubElement(root, "version")
         version_node.text = version
         license_node = etree.SubElement(root, "license")
-        license_node.text = license
+        license_node.text = code_license
         return XMLNode(root)
 
     def visit_service_graph(self, nodes, policy, metadata):
@@ -73,8 +73,8 @@ class XMLParser(object):
     def _about_from_xml(node):
         name = node.find("name").text
         version = node.find("version").text
-        license = node.find("license").text
-        return About(name, version, license)
+        code_license = node.find("license").text
+        return About(name, version, code_license)
 
     def graph_node_from(self, text):
         node = etree.fromstring(text)
@@ -97,17 +97,8 @@ class XMLParser(object):
         return Policy(rpid, name)
 
     def service_graph_from(self, text):
-        service_graph = etree.fromstring(text)
-
-        nodes = []
-        for each_node in service_graph.find("GraphNodeDescriptor") or []:
-            nodes.append(self._node_from_xml(each_node))
-
-        policies = []
-        for each_policy in service_graph.find("RuntimePolicyDescriptor") or []:
-            policies.append(self._policy_from_xml(each_policy))
-
-        return ServiceGraph(nodes, policies)
+        node = etree.fromstring(text)
+        return self._service_graph_from_xml(node)
 
     def _service_graph_from_xml(self, node):
         nodes = []
@@ -137,12 +128,12 @@ class TextPrinter(Visitor):
     """
 
     ABOUT = """
-    {service} v{version} -- {license}
+    {service} v{version} -- {code_license}
     Copyright (C) SINTEF 2017
     """
 
-    def visit_about(self, name, version, license):
+    def visit_about(self, name, version, code_license):
         return self.ABOUT.format(service=name,
                                  version=version,
-                                 license=license)
+                                 code_license=code_license)
 

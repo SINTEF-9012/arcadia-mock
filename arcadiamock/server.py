@@ -11,7 +11,7 @@
 
 from flask import Flask, request
 from argparse import ArgumentParser
-from sys import argv, stdout, exit
+from sys import argv, stdout, exit as sys_exit
 
 from arcadiamock import __SERVICE_NAME__
 from arcadiamock.utils import on_exit
@@ -145,7 +145,7 @@ class CLI(object):
         # coverage data to be writtem to disk.
         print "Ctrl+C pressed! That's all folks!"
         stdout.flush()
-        exit()
+        sys_exit()
 
 
 def main():
