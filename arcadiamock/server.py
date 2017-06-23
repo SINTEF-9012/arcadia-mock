@@ -16,7 +16,7 @@ from sys import argv, stdout, exit
 from arcadiamock import __VERSION__, __SERVICE_NAME__, __LICENSE__
 from arcadiamock.utils import on_exit
 from arcadiamock.servicegraphs import Store, ServiceGraph, Node
-from arcadiamock.adapters import MimeTypes, XMLPrinter, TextPrinter
+from arcadiamock.adapters import MimeTypes, XMLPrinter, XMLParser, TextPrinter
 
 
 class Action(object):
@@ -100,7 +100,14 @@ class RESTServer(object):
 
     def service_graphs(self):
         service_graphs = self._store.all_service_graphs()
-        return service_graphs[0].accept(self._writer()).as_text()
+        return service_graphs.accept(self._writer()).as_text()
+
+    def register_service_graph(self):
+        payload = request.data
+        print "PAYLOAD:", payload
+        service_graph = XMLParser().service_graph_from(payload)
+        self._store.add_service_graph(service_graph)
+        return ("", 204)
 
     def _writer(self):
         return self._writers.get(request.accept_mimetypes.best,
@@ -110,6 +117,7 @@ class RESTServer(object):
         app = Flask(__SERVICE_NAME__)
         app.add_url_rule('/about', 'index', self.about)
         app.add_url_rule('/service_graphs', 'service_graphs', self.service_graphs)
+        app.add_url_rule("/register", methods=["POST"], view_func=self.register_service_graph)
         app.run(host=host, port=port)
 
 
@@ -141,6 +149,7 @@ def main():
     settings = Settings.from_command_line(argv[1:])
 
     cli = CLI(settings, stdout)
+
     if settings.action == Action.SHOW_VERSION:
         cli.show_version()
 

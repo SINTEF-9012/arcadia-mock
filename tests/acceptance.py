@@ -14,7 +14,7 @@ from unittest import TestCase
 from arcadiamock import __VERSION__
 from arcadiamock.utils import execute
 from arcadiamock.client import Client
-
+from arcadiamock.servicegraphs import ServiceGraph, Node
 
 
 class AcceptanceTests(TestCase):
@@ -45,11 +45,21 @@ class AcceptanceTests(TestCase):
         about = self.client.about()
         self.assertEqual(__VERSION__, about.version)
 
-    def test_fetch_service_graphs_as_xml(self):
+    def test_fetch_and_then_retrieve_service_graphs(self):
         self._ensure_server_is_alive()
-        response = self.client.service_graphs()
-        self.assertEqual(200, response.status_code)
-        self.assertEqual("<ServiceGraph><GraphNodeDescriptor><GraphNode><NID>12</NID><CNID>foo</CNID></GraphNode></GraphNodeDescriptor></ServiceGraph>", response.text)
+
+        # Retrieve the list of service graphs
+        service_graphs = self.client.service_graphs()
+        print "BEFORE:", len(service_graphs)
+
+        # Register a new service graph
+        service_graph = ServiceGraph([Node(50, "foooooo!")], [])
+        self.client.register_service_graph(service_graph)
+
+        # Register the list of service graphs
+        new_service_graphs = self.client.service_graphs()
+
+        self.assertEqual(len(new_service_graphs), len(service_graphs) + 1)
 
     def _ensure_server_is_alive(self):
         if self.server.poll() is not None:

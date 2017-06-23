@@ -13,11 +13,10 @@ from requests import get, Request, Session
 from requests.exceptions import ConnectionError
 from time import sleep
 
-from arcadiamock.adapters import XMLParser
+from arcadiamock.adapters import XMLParser, XMLPrinter
 
 
 class Client(object):
-
 
     DEFAULT_HOST_NAME = "localhost"
     DEFAULT_PORT = 5000
@@ -28,15 +27,23 @@ class Client(object):
         self._headers = {
             "accept": "application/xml"
         }
-        self._parser = XMLParser()
+        self._parse = XMLParser()
+        self._formatter = XMLPrinter()
+
+    def register_service_graph(self, service_graph):
+        xml = service_graph.accept(self._formatter)
+        response = self._fetch(resource=self._url_of("/register"),
+                               method="POST",
+                               payload=xml.as_text())
+        response.raise_for_status()
 
     def service_graphs(self):
         response = self._fetch(self._url_of("/service_graphs"))
-        return response
+        return self._parse.service_graphs_from(response.text)
 
     def about(self):
         response = self._fetch(self._url_of("/about"))
-        return self._parser.about_from(response.text)
+        return self._parse.about_from(response.text)
 
     def _url_of(self, page):
         return self._base_url + page
@@ -48,12 +55,12 @@ class Client(object):
             hostname=self._hostname,
             port=self._port)
 
-    def _fetch(self, page, method="GET"):
+    def _fetch(self, resource, method="GET", payload=None):
         attempt = self.MAX_ATTEMPTS
         while attempt >= 0:
             try:
                 attempt -= 1
-                request = Request(method, page, headers=self._headers)
+                request = Request(method, resource, headers=self._headers, data=payload)
                 return Session().send(request.prepare())
             except ConnectionError:
                 sleep(self.DELAY)

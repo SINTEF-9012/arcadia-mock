@@ -27,7 +27,7 @@ class Store(object):
         self._service_graphs.append(service_graph)
 
     def all_service_graphs(self):
-        return self._service_graphs
+        return ServiceGraphList(self._service_graphs)
 
 
 class Visitor(object):
@@ -36,6 +36,9 @@ class Visitor(object):
         pass
 
     def visit_service_graph(self, nodes, policy, metadata):
+        pass
+
+    def visit_service_graph_list(self, graphs):
         pass
 
     def visit_node(nid, cnid):
@@ -73,6 +76,23 @@ class About(DomainObject):
     @property
     def license(self):
         return self._license
+
+
+class ServiceGraphList(DomainObject):
+
+    def __init__(self, graphs):
+        self._graphs = graphs
+
+    def accept(self, visitor):
+        return visitor.visit_service_graph_list(self._graphs)
+
+    @property
+    def count(self):
+        return len(self._graphs)
+
+    @property
+    def graphs(self):
+        return self._graphs
 
 
 class ServiceGraph(object):

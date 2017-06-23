@@ -11,14 +11,15 @@
 
 from unittest import TestCase
 
-
 from arcadiamock.servicegraphs import ServiceGraph, Node, About
 from arcadiamock.adapters import XMLPrinter, XMLParser
 
 
 class XMLParserTests(TestCase):
 
-    
+    def setUp(self):
+        self.parser = XMLParser()
+
     def test_parse_graph_node(self):
         xml = """
         <GraphNode>
@@ -26,13 +27,13 @@ class XMLParserTests(TestCase):
         <CNID>mysql_id</CNID>
         </GraphNode>
         """
-        parser = XMLParser()
-        node = parser.graph_node_from(xml)
+
+        node = self.parser.graph_node_from(xml)
+
         self.assertIsNotNone(node)
         self.assertEquals("graph_node_mysql_id", node.nid)
         self.assertEquals("mysql_id", node.cnid)
 
-        
     def test_parse_runtime_policy(self):
         xml = """
         <RuntimePolicy>
@@ -40,8 +41,9 @@ class XMLParserTests(TestCase):
         <RPName>RPName</RPName>
         </RuntimePolicy>
         """
-        parser = XMLParser()
-        policy = parser.runtime_policy_from(xml)
+
+        policy = self.parser.runtime_policy_from(xml)
+
         self.assertIsNotNone(policy)
         self.assertEqual("RPID", policy.rpid)
         self.assertEqual("RPName", policy.name)
@@ -77,10 +79,21 @@ class XMLParserTests(TestCase):
         </RuntimePolicyDescriptor>
      </ServiceGraph>
         """
-        parser = XMLParser()
-        service_graph = parser.service_graph_from(xml)
+
+        service_graph = self.parser.service_graph_from(xml)
+
         self.assertIsNotNone(service_graph)
         self.assertEqual(2, len(service_graph.nodes))
+
+    def test_parse_service_graphs(self):
+        xml = "<ServiceGraphs>"\
+              "<ServiceGraph />"\
+              "<ServiceGraph />"\
+              "</ServiceGraphs>"
+
+        service_graphs = self.parser.service_graphs_from(xml)
+
+        self.assertEqual(2, len(service_graphs))
 
 
 class XMLPrinterTests(TestCase):

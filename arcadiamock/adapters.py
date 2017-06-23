@@ -31,6 +31,12 @@ class XMLNode(object):
 
 class XMLPrinter(Visitor):
 
+    def visit_service_graph_list(self, service_graphs):
+        root = etree.Element("ServiceGraphs")
+        for each_graph in service_graphs:
+            root.append(each_graph.accept(self)._root)
+        return XMLNode(root)
+
     def visit_about(self, name, version, license):
         root = etree.Element("about")
         name_node = etree.SubElement(root, "name")
@@ -91,14 +97,34 @@ class XMLParser(object):
         service_graph = etree.fromstring(text)
 
         nodes = []
-        for each_node in service_graph.find("GraphNodeDescriptor"):
+        for each_node in service_graph.find("GraphNodeDescriptor") or []:
             nodes.append(self._node_from_xml(each_node))
 
         policies = []
-        for each_policy in service_graph.find("RuntimePolicyDescriptor"):
+        for each_policy in service_graph.find("RuntimePolicyDescriptor") or []:
             policies.append(self._policy_from_xml(each_policy))
 
         return ServiceGraph(nodes, policies)
+
+    def _service_graph_from_xml(self, node):
+        nodes = []
+        for each_node in node.find("GraphNodeDescriptor") or []:
+            nodes.append(self._node_from_xml(each_node))
+
+        policies = []
+        for each_policy in node.find("RuntimePolicyDescriptor") or []:
+            policies.append(self._policy_from_xml(each_policy))
+
+        return ServiceGraph(nodes, policies)
+
+    def service_graphs_from(self, text):
+        collection = etree.fromstring(text)
+
+        graphs = []
+        for each_node in collection.iter("ServiceGraph") or []:
+            graphs.append(self._service_graph_from_xml(each_node))
+
+        return graphs
 
 
 class TextPrinter(Visitor):
