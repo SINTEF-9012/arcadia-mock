@@ -52,6 +52,9 @@ class Visitor(object):
     def visit_node(self, nid, cnid):
         pass
 
+    def visit_metadata(self, values):
+        pass
+
 
 class DomainObject(object):
     """
@@ -108,10 +111,10 @@ class ServiceGraphList(DomainObject):
 
 class ServiceGraph(object):
 
-    def __init__(self, nodes=None, policy=None):
+    def __init__(self, nodes=None, policy=None, metadata=None):
         self._nodes = nodes or []
         self._policy = policy
-        self._metadata = None
+        self._metadata = metadata
 
     def accept(self, visitor):
         return visitor.visit_service_graph(
@@ -182,6 +185,20 @@ class Policy(object):
         return self._name
 
 
-class MetaData(object):
-    pass
+class MetaData(DomainObject):
 
+    def __init__(self, values = {}):
+        self._values = values
+
+    def bind(self, key, value):
+        self._values[key] = value
+
+    def value_of(self, key):
+        return self._values.get(key, None)
+
+    def accept(self, visitor):
+        return visitor.visit_metadata(self._values)
+
+    @property
+    def count(self):
+        return len(self._values)

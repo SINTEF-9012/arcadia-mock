@@ -45,6 +45,26 @@ class ServiceGraphTests(TestCase):
         visitor.visit_service_graph.called_once_with(self.graph.nodes, None, None)
 
 
+class MetadataTests(TestCase):
+
+    def setUp(self):
+        self.metadata = MetaData()
+
+    def test_defining_key_value_pair(self):
+        key, value = ("foo", "foo value")
+
+        self.metadata.bind(key, value)
+
+        self.assertEqual(value, self.metadata.value_of(key))
+
+    def test_accept(self):
+        visitor = MagicMock()
+
+        self.metadata.accept(visitor)
+
+        visitor.visit_metadata.assert_called_once()
+
+
 class ArcadiaMockTests(TestCase):
 
     def setUp(self):

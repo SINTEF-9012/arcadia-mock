@@ -9,7 +9,7 @@
 #
 
 
-from arcadiamock.servicegraphs import Visitor, Node, Policy, ServiceGraph, About
+from arcadiamock.servicegraphs import Visitor, Node, Policy, ServiceGraph, About, MetaData
 
 import xml.etree.ElementTree as etree
 
@@ -49,6 +49,8 @@ class XMLPrinter(Visitor):
 
     def visit_service_graph(self, nodes, policy, metadata):
         root =  etree.Element("ServiceGraph")
+        if metadata is not None:
+            root.append(metadata.accept(self)._root)
         descriptors = etree.SubElement(root, "GraphNodeDescriptor")
         for each_node in nodes:
             descriptors.append(each_node.accept(self)._root)
@@ -60,6 +62,13 @@ class XMLPrinter(Visitor):
         nid_node.text = str(nid)
         cnid_node = etree.SubElement(root, "CNID")
         cnid_node.text = str(cnid)
+        return XMLNode(root)
+
+    def visit_metadata(self, values):
+        root = etree.Element("DescriptiveSGMetadata")
+        for key, value in values.items():
+            node = etree.SubElement(root, key.upper())
+            node.text = value
         return XMLNode(root)
 
 
@@ -119,6 +128,13 @@ class XMLParser(object):
             graphs.append(self._service_graph_from_xml(each_node))
 
         return graphs
+
+    def metadata_from(self, text):
+        values = {}
+        root = etree.fromstring(text)
+        for each_node in root:
+            values[each_node.tag] = each_node.text
+        return MetaData(values)
 
 
 class TextPrinter(Visitor):

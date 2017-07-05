@@ -11,7 +11,7 @@
 
 from unittest import TestCase
 
-from arcadiamock.servicegraphs import ServiceGraph, Node, About
+from arcadiamock.servicegraphs import ServiceGraph, Node, About, MetaData
 from arcadiamock.adapters import XMLPrinter, XMLParser
 
 
@@ -95,6 +95,18 @@ class XMLParserTests(TestCase):
 
         self.assertEqual(2, len(service_graphs))
 
+    def test_parse_metadata(self):
+        xml = "<DescriptiveSGMetadata>" \
+              "<FOO>foo value</FOO>"\
+              "<BAR>bar value</BAR>"\
+              "</DescriptiveSGMetadata>"
+
+        metadata = self.parser.metadata_from(xml)
+
+        self.assertEqual(metadata.count, 2)
+        self.assertEqual("foo value", metadata.value_of("FOO"))
+        self.assertEqual("bar value", metadata.value_of("BAR"))
+
 
 class XMLPrinterTests(TestCase):
 
@@ -116,11 +128,15 @@ class XMLPrinterTests(TestCase):
     def test_printing_service_graph(self):
         service_graph = ServiceGraph(
             nodes= [ Node(23, "foo"),
-                     Node(24, "bar") ])
+                     Node(24, "bar") ],
+            metadata = MetaData({"foo": "bar"}))
 
         xml = service_graph.accept(self.printer)
 
         expected = "<ServiceGraph>"\
+                   "<DescriptiveSGMetadata>" \
+                   "<FOO>bar</FOO>"\
+                   "</DescriptiveSGMetadata>"\
                    "<GraphNodeDescriptor>"\
                    "<GraphNode>"\
                    "<NID>23</NID>"\
@@ -144,3 +160,13 @@ class XMLPrinterTests(TestCase):
                    "<CNID>foo</CNID>"\
                    "</GraphNode>"
         self.assertEqual(expected, xml.as_text())
+
+    def test_printing_metadata(self):
+        metadata = MetaData({"foo": "bar"})
+
+        xml = metadata.accept(self.printer)
+
+        expected = "<DescriptiveSGMetadata>" \
+                   "<FOO>bar</FOO>"\
+                   "</DescriptiveSGMetadata>"
+        self.assertEquals(expected, xml.as_text())

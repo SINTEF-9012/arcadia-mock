@@ -52,7 +52,9 @@ class AcceptanceTests(TestCase):
         service_graphs = self.client.service_graphs()
 
         # Register a new service graph
-        service_graph = ServiceGraph([Node(50, "foooooo!")], [])
+        service_graph = ServiceGraph(
+            nodes=[Node(50, "foooooo!")],
+            policy=[])
         self.client.register_service_graph(service_graph)
 
         # Register the list of service graphs
