@@ -47,11 +47,21 @@ class ServiceGraphTests(TestCase):
 
 class ArcadiaMockTests(TestCase):
 
-     def test_add_service_graphs(self):
-        store = Store()
-        self.assertEqual(0, store.all_service_graphs().count)
+    def setUp(self):
+        self.store = Store()
+
+    def test_add_service_graphs(self):
+        self.assertEqual(0, self.store.all_service_graphs().count)
 
         service_graph = ServiceGraph()
-        store.add_service_graph(service_graph)
+        self.store.add_service_graph(service_graph)
 
-        self.assertEqual(1, store.all_service_graphs().count)
+        self.assertEqual(1, self.store.all_service_graphs().count)
+
+    def test_component_by_cnid(self):
+        service_graph = ServiceGraph(nodes=[Node("my_sql", "mysql")])
+        self.store.add_service_graph(service_graph)
+
+        node = self.store.component_with_cnid("mysql")
+
+        self.assertEqual(node.cnid, "mysql")

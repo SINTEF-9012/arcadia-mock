@@ -43,11 +43,11 @@ class Settings(object):
                             const=Action.SHOW_VERSION,
                             help='show the version')
         parser.add_argument('-n','--name',
-                            help='The name of the host which should serve arcadia mocks')
+                            help="The name of the host which should serve arcadia mocks")
         parser.add_argument('-l','--log-file',
                             help='The name of the log file to use')
         parser.add_argument('-p','--port',
-                            help='The port number on which HTTP requests are expected')
+                            help="The port number on which HTTP requests are expected")
         parser.set_defaults(
             action=Settings.DEFAULT_ACTION,
             log_file=Settings.DEFAULT_LOG_FILE,
@@ -92,7 +92,9 @@ class RESTServer(object):
             MimeTypes.JSON: "{ \"servicegraphs\": [] }"
         }
         self._store = store
-        self._store.add_service_graph(ServiceGraph(nodes=[Node(12, "foo")]))
+        self._store.add_service_graph(
+            ServiceGraph(
+                nodes=[Node(12, "foo")]))
 
     def about(self):
         about = self._store.about()
@@ -107,6 +109,13 @@ class RESTServer(object):
         self._store.add_service_graph(service_graph)
         return ("", 204)
 
+    def component_with_cnid(self, cnid):
+        print "Searching for CNID '", cnid, "'"
+        component = self._store.component_with_cnid(cnid)
+        if component is None:
+            return ("Not Found", 404)
+        return component.accept(self._writer()).as_text()
+
     def _writer(self):
         return self._writers.get(request.accept_mimetypes.best,
                                  self._writers[MimeTypes.JSON])
@@ -120,6 +129,8 @@ class RESTServer(object):
         app.add_url_rule("/register",
                          methods=["POST"],
                          view_func=self.register_service_graph)
+        app.add_url_rule("/components/<cnid>",
+                         view_func=self.component_with_cnid)
         app.run(host=host, port=port)
 
 

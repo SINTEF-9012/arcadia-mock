@@ -37,6 +37,12 @@ class Client(object):
                                payload=xml.as_text())
         response.raise_for_status()
 
+    def component_with_CNID(self, cnid):
+        resource = "/components/{0}".format(cnid)
+        url = self._url_of(resource)
+        response = self._fetch(url)
+        return self._parse.graph_node_from(response.text)
+
     def service_graphs(self):
         response = self._fetch(self._url_of("/service_graphs"))
         return self._parse.service_graphs_from(response.text)

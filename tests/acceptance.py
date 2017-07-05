@@ -50,7 +50,6 @@ class AcceptanceTests(TestCase):
 
         # Retrieve the list of service graphs
         service_graphs = self.client.service_graphs()
-        print "BEFORE:", len(service_graphs)
 
         # Register a new service graph
         service_graph = ServiceGraph([Node(50, "foooooo!")], [])
@@ -60,6 +59,11 @@ class AcceptanceTests(TestCase):
         new_service_graphs = self.client.service_graphs()
 
         self.assertEqual(len(new_service_graphs), len(service_graphs) + 1)
+
+    def test_fetch_component_info(self):
+        CNID = "foo"
+        infos = self.client.component_with_CNID(CNID)
+        self.assertEqual(CNID, infos.cnid)
 
     def _ensure_server_is_alive(self):
         if self.server.poll() is not None:

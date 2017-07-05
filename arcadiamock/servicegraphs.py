@@ -30,6 +30,13 @@ class Store(object):
     def all_service_graphs(self):
         return ServiceGraphList(self._service_graphs)
 
+    def component_with_cnid(self, cnid):
+        for each_graph in self._service_graphs:
+            for any_node in each_graph.nodes:
+                if any_node.cnid == cnid:
+                    return any_node
+        return None
+
 
 class Visitor(object):
 
@@ -177,5 +184,4 @@ class Policy(object):
 
 class MetaData(object):
     pass
-
 
