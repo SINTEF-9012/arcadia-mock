@@ -8,7 +8,7 @@
 # of the MIT license.  See the LICENSE file for details.
 #
 
-__VERSION__ = "0.0.3"
+__VERSION__ = "0.0.4"
 
 __SERVICE_NAME__ = "ARCADIA-mock"
 
