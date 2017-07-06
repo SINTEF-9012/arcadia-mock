@@ -29,6 +29,10 @@ Note that if you want to develop or modify the code, you may want to install it 
 ARCADIA mocks comes with a test suite that checks whether its basic
 functionalities. You can run it with the following commands:
 
+	$> tox -e py27
+
+or
+
 	$> python setup.py test
 	
 In addition, you can measure the code coverage by running this test
