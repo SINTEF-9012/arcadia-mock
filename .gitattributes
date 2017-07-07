@@ -1,0 +1,2 @@
+# Never changes the line-ending of Bash scripts
+*.sh -crlf
