@@ -13,10 +13,13 @@ from arcadiamock.servicegraphs import Visitor, Node, Policy, ServiceGraph, About
 
 import xml.etree.ElementTree as etree
 
+from lxml import etree as lxmletree
+
 
 class MimeTypes(object):
     JSON = "application/json"
     XML = "application/xml"
+    HTML = "text/html"
 
 
 class XMLNode(object):
@@ -27,6 +30,60 @@ class XMLNode(object):
 
     def as_text(self):
         return etree.tostring(self._root, method="xml")
+
+
+class HTMLNode(object):
+
+    def __init__(self, node):
+        super(HTMLNode, self).__init__()
+        self._root = node
+
+    def as_text(self):
+        root = lxmletree.fromstring(etree.tostring(self._root))
+        return lxmletree.tostring(root, pretty_print=True)
+
+
+class HTMLPrinter(Visitor):
+
+    def visit_service_graph_list(self, graphs):
+        root = etree.Element("ServiceGraphs")
+        for each_graph in graphs:
+            root.append(each_graph.accept(self)._root)
+        return HTMLNode(root)
+
+    def visit_about(self, name, version, code_license):
+        root = etree.Element("about")
+        name_node = etree.SubElement(root, "name")
+        name_node.text = name
+        version_node = etree.SubElement(root, "version")
+        version_node.text = version
+        license_node = etree.SubElement(root, "license")
+        license_node.text = code_license
+        return HTMLNode(root)
+
+    def visit_service_graph(self, nodes, policy, metadata):
+        root =  etree.Element("ServiceGraph")
+        if metadata is not None:
+            root.append(metadata.accept(self)._root)
+        descriptors = etree.SubElement(root, "GraphNodeDescriptor")
+        for each_node in nodes:
+            descriptors.append(each_node.accept(self)._root)
+        return HTMLNode(root)
+
+    def visit_node(self, nid, cnid):
+        root = etree.Element("GraphNode")
+        nid_node = etree.SubElement(root, "NID")
+        nid_node.text = str(nid)
+        cnid_node = etree.SubElement(root, "CNID")
+        cnid_node.text = str(cnid)
+        return HTMLNode(root)
+
+    def visit_metadata(self, values):
+        root = etree.Element("DescriptiveSGMetadata")
+        for key, value in values.items():
+            node = etree.SubElement(root, key.upper())
+            node.text = value
+        return HTMLNode(root)
 
 
 class XMLPrinter(Visitor):
