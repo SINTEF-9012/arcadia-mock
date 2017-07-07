@@ -118,7 +118,7 @@ class XMLParser(object):
         for each_policy in node.find("RuntimePolicyDescriptor") or []:
             policies.append(self._policy_from_xml(each_policy))
 
-        return ServiceGraph(nodes, policies)
+        return ServiceGraph(nodes=nodes, policy=policies)
 
     def service_graphs_from(self, text):
         collection = etree.fromstring(text)

@@ -45,7 +45,6 @@ class Client(object):
 
     def service_graphs(self):
         response = self._fetch(self._url_of("/service_graphs"))
-        print "RESPONSE >>> ", response
         return self._parse.service_graphs_from(response.text)
 
     def about(self):

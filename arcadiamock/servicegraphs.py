@@ -111,7 +111,10 @@ class ServiceGraphList(DomainObject):
 
 class ServiceGraph(object):
 
-    def __init__(self, nodes=None, policy=None, metadata=None):
+    DEFAULT_IDENTIFIER = "Anonymous"
+
+    def __init__(self, identifier=None, nodes=None, policy=None, metadata=None):
+        self._identifier = identifier or self.DEFAULT_IDENTIFIER
         self._nodes = nodes or []
         self._policy = policy
         self._metadata = metadata
@@ -121,6 +124,10 @@ class ServiceGraph(object):
             self._nodes,
             self._policy,
             self._metadata)
+
+    @property
+    def identifier(self):
+        return self._identifier
 
     @property
     def nodes(self):

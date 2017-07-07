@@ -21,6 +21,9 @@ class ServiceGraphTests(TestCase):
     def setUp(self):
         self.graph = ServiceGraph()
 
+    def test_identifer(self):
+        self.assertEqual(ServiceGraph.DEFAULT_IDENTIFIER, self.graph.identifier)
+
     def test_nodes(self):
         self.assertEqual(0, len(self.graph.nodes))
 
