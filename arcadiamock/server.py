@@ -16,7 +16,7 @@ from sys import argv, stdout, exit as sys_exit
 from arcadiamock import __SERVICE_NAME__
 from arcadiamock.utils import on_exit
 from arcadiamock.servicegraphs import Store, ServiceGraph, Node
-from arcadiamock.adapters import MimeTypes, XMLPrinter, XMLParser, TextPrinter
+from arcadiamock.adapters import MimeTypes, XMLPrinter, HTMLPrinter, XMLParser, TextPrinter
 
 
 class Action(object):
@@ -89,6 +89,7 @@ class RESTServer(object):
     def __init__(self, store):
         self._writers = {
             MimeTypes.XML: XMLPrinter(),
+            MimeTypes.HTML : HTMLPrinter(),
             MimeTypes.JSON: "{ \"servicegraphs\": [] }"
         }
         self._store = store
@@ -107,7 +108,7 @@ class RESTServer(object):
     def register_service_graph(self):
         service_graph = XMLParser().service_graph_from(request.data)
         self._store.add_service_graph(service_graph)
-        return ("", 204)
+        return ("", 200)
 
     def components(self):
         components = self._store.all_components()
