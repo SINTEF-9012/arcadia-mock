@@ -108,7 +108,7 @@ class RESTServer(object):
     def register_service_graph(self):
         service_graph = XMLParser().service_graph_from(request.data)
         self._store.add_service_graph(service_graph)
-        return ("", 204)
+        return ("", 200)
 
     def component_with_cnid(self, cnid):
         print "Searching for CNID '", cnid, "'"
