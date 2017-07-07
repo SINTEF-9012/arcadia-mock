@@ -52,10 +52,13 @@ class Visitor(object):
     def visit_service_graph_list(self, graphs):
         pass
 
-    def visit_node(self, nid, cnid):
+    def visit_node(self, nid, cnid, dependency):
         pass
 
     def visit_metadata(self, values):
+        pass
+
+    def visit_dependency(self, nid, cepcid, ecepid):
         pass
 
 
@@ -223,12 +226,13 @@ class Node(object):
     DEFAULT_ID = "Unknown"
     DEFAULT_CNID = "Unknown"
 
-    def __init__(self, nid=None, cnid=None):
+    def __init__(self, nid=None, cnid=None, dependency=None):
         self._nid = nid or Node.DEFAULT_ID
         self._cnid = cnid or Node.DEFAULT_CNID
+        self._dependency = dependency
 
     def accept(self, visitor):
-        return visitor.visit_node(self.nid, self.cnid)
+        return visitor.visit_node(self.nid, self.cnid, self.dependency)
 
     @property
     def nid(self):
@@ -237,6 +241,10 @@ class Node(object):
     @property
     def cnid(self):
         return self._cnid
+
+    @property
+    def dependency(self):
+        return self._dependency
 
 
 class Policy(object):

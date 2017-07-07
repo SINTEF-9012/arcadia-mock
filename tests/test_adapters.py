@@ -11,7 +11,7 @@
 
 from unittest import TestCase
 
-from arcadiamock.servicegraphs import ServiceGraph, Component, Node, About, MetaData, ComponentList
+from arcadiamock.servicegraphs import *
 from arcadiamock.adapters import XMLPrinter, XMLParser
 
 
@@ -23,8 +23,8 @@ class XMLParserTests(TestCase):
     def test_parse_graph_node(self):
         xml = """
         <GraphNode>
-        <NID>graph_node_mysql_id</NID>
-        <CNID>mysql_id</CNID>
+        	<NID>graph_node_mysql_id</NID>
+        	<CNID>mysql_id</CNID>
         </GraphNode>
         """
 
@@ -33,6 +33,44 @@ class XMLParserTests(TestCase):
         self.assertIsNotNone(node)
         self.assertEquals("graph_node_mysql_id", node.nid)
         self.assertEquals("mysql_id", node.cnid)
+        self.assertIsNone(node.dependency)
+
+    def test_parse_graph_node_with_dependency(self):
+        xml = """
+        <GraphNode>
+        	<NID>graph_node_mysql_id</NID>
+        	<CNID>mysql_id</CNID>
+        	<GraphDependency>
+        		<NID>foo</NID>
+        		<CEPCID>bar</CEPCID>
+        		<ECEPID>baz</ECEPID>
+        	</GraphDependency>
+        </GraphNode>
+        """
+
+        node = self.parser.graph_node_from(xml)
+
+        self.assertIsNotNone(node)
+        self.assertEqual("graph_node_mysql_id", node.nid)
+        self.assertEqual("mysql_id", node.cnid)
+        self.assertIsNotNone(node.dependency)
+        self.assertEqual("foo", node.dependency.nid)
+        self.assertEqual("bar", node.dependency.cepcid)
+        self.assertEqual("baz", node.dependency.ecepid)
+
+    def test_parse_dependency(self):
+        xml = "<GraphDependency>"\
+              "<NID>foo</NID>"\
+              "<CEPCID>bar</CEPCID>"\
+              "<ECEPID>baz</ECEPID>"\
+              "</GraphDependency>"
+
+        dependency = self.parser.dependency_from(xml)
+
+        self.assertIsNotNone(dependency)
+        self.assertEquals("foo", dependency.nid)
+        self.assertEquals("bar", dependency.cepcid)
+        self.assertEquals("baz", dependency.ecepid)
 
     def test_parse_runtime_policy(self):
         xml = """
@@ -190,6 +228,23 @@ class XMLPrinterTests(TestCase):
                    "</GraphNode>"
         self.assertEqual(expected, xml.as_text())
 
+    def test_printing_node_with_dependency(self):
+        node = Node(23, "foo", Dependency("foo", "bar", "baz"))
+
+        xml = node.accept(self.printer)
+
+        expected = "<GraphNode>"\
+                   "<NID>23</NID>"\
+                   "<CNID>foo</CNID>"\
+                   "<GraphDependency>"\
+                   "<NID>foo</NID>"\
+                   "<CEPCID>bar</CEPCID>"\
+                   "<ECEPID>baz</ECEPID>"\
+                   "</GraphDependency>"\
+                   "</GraphNode>"
+        self.assertEqual(expected, xml.as_text())
+
+
     def test_printing_metadata(self):
         metadata = MetaData({"foo": "bar"})
 
@@ -240,4 +295,18 @@ class XMLPrinterTests(TestCase):
                    "</Component>"\
                    "</Components>"
         self.assertEqual(expected, xml.as_text())
+
+    def test_print_dependency(self):
+        dependency = Dependency(nid="foo", cepcid="bar", ecepid="baz")
+
+        xml = dependency.accept(self.printer)
+
+        expected = "<GraphDependency>"\
+                   "<NID>foo</NID>"\
+                   "<CEPCID>bar</CEPCID>"\
+                   "<ECEPID>baz</ECEPID>"\
+                   "</GraphDependency>"
+        self.assertEqual(expected, xml.as_text())
+        
+                   
 
