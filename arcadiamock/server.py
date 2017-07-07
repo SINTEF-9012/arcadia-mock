@@ -109,6 +109,15 @@ class RESTServer(object):
         self._store.add_service_graph(service_graph)
         return ("", 204)
 
+    def components(self):
+        components = self._store.all_components()
+        return components.accept(self._writer()).as_text()
+
+    def register_component(self):
+        component = XMLParser().component_from(request.data)
+        self._store.register_component(component)
+        return ("", 200)
+
     def component_with_cnid(self, cnid):
         print "Searching for CNID '", cnid, "'"
         component = self._store.component_with_cnid(cnid)
@@ -129,6 +138,11 @@ class RESTServer(object):
         app.add_url_rule("/register",
                          methods=["POST"],
                          view_func=self.register_service_graph)
+        app.add_url_rule("/components",
+                         view_func=self.components)
+        app.add_url_rule("/components",
+                         methods=["POST"],
+                         view_func=self.register_component)
         app.add_url_rule("/components/<cnid>",
                          view_func=self.component_with_cnid)
         app.run(host=host, port=port)

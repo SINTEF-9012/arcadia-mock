@@ -14,7 +14,7 @@ from unittest import TestCase
 from arcadiamock import __VERSION__
 from arcadiamock.utils import execute
 from arcadiamock.client import Client
-from arcadiamock.servicegraphs import ServiceGraph, Node
+from arcadiamock.servicegraphs import ServiceGraph, Node, Component
 
 
 class AcceptanceTests(TestCase):
@@ -62,10 +62,24 @@ class AcceptanceTests(TestCase):
 
         self.assertEqual(len(new_service_graphs), len(service_graphs) + 1)
 
-    def test_fetch_component_info(self):
-        CNID = "foo"
-        infos = self.client.component_with_CNID(CNID)
-        self.assertEqual(CNID, infos.cnid)
+    def test_register_and_fetch_component(self):
+        self._ensure_server_is_alive()
+
+        # Fetch the number of registered components
+        old_component_count = self.client.components().count
+
+        # Create and push a new component named foo
+        cnid = "foo"
+        local_component = Component(cnid=cnid)
+        self.client.register_component(local_component)
+
+        # Check the number of components has been incremented
+        self.assertEqual(old_component_count + 1,
+                         self.client.components().count)
+
+        # Check that the new component is accessible
+        remote_component = self.client.component_with_CNID(cnid)
+        self.assertEqual(local_component.cnid, remote_component.cnid)
 
     def _ensure_server_is_alive(self):
         if self.server.poll() is not None:

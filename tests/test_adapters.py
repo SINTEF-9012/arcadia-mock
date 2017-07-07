@@ -11,7 +11,7 @@
 
 from unittest import TestCase
 
-from arcadiamock.servicegraphs import ServiceGraph, Node, About, MetaData
+from arcadiamock.servicegraphs import ServiceGraph, Component, Node, About, MetaData, ComponentList
 from arcadiamock.adapters import XMLPrinter, XMLParser
 
 
@@ -107,6 +107,35 @@ class XMLParserTests(TestCase):
         self.assertEqual("foo value", metadata.value_of("FOO"))
         self.assertEqual("bar value", metadata.value_of("BAR"))
 
+    def test_parse_component(self):
+        xml = "<Component>"\
+              "<CID>1</CID>"\
+              "<CNID>2</CNID>"\
+              "<CEPNID>3</CEPNID>"\
+              "<ECEPCNID>4</ECEPCNID>"\
+              "</Component>"
+
+        component = self.parser.component_from(xml)
+
+        self.assertEqual("1", component.cid)
+        self.assertEqual("2", component.cnid)
+        self.assertEqual("3", component.cepnid)
+        self.assertEqual("4", component.ecepcnid)
+
+    def test_parse_component_list(self):
+        xml = "<Components>"\
+              "<Component>"\
+              "<CID>1</CID>"\
+              "<CNID>2</CNID>"\
+              "<CEPNID>3</CEPNID>"\
+              "<ECEPCNID>4</ECEPCNID>"\
+              "</Component>"\
+              "</Components>"
+
+        components = self.parser.components_from(xml)
+
+        self.assertEqual(1, components.count)
+
 
 class XMLPrinterTests(TestCase):
 
@@ -170,3 +199,45 @@ class XMLPrinterTests(TestCase):
                    "<FOO>bar</FOO>"\
                    "</DescriptiveSGMetadata>"
         self.assertEquals(expected, xml.as_text())
+
+    def test_printing_component(self):
+        component = Component(
+            cid=1,
+            cnid=2,
+            cepnid=3,
+            ecepcnid=4)
+
+        xml = component.accept(self.printer)
+
+        expected = "<Component>"\
+                   "<CID>1</CID>"\
+                   "<CNID>2</CNID>"\
+                   "<CEPNID>3</CEPNID>"\
+                   "<ECEPCNID>4</ECEPCNID>"\
+                   "</Component>"
+        self.assertEqual(expected, xml.as_text())
+
+    def test_printing_empty_component_list(self):
+        components = ComponentList()
+
+        xml = components.accept(self.printer)
+
+        expected = "<Components/>"
+
+        self.assertEqual(expected, xml.as_text())
+
+    def test_printing_empty_component_list(self):
+        components = ComponentList([ Component() ])
+
+        xml = components.accept(self.printer)
+
+        expected = "<Components>"\
+                   "<Component>"\
+                   "<CID>0</CID>"\
+                   "<CNID>0</CNID>"\
+                   "<CEPNID>0</CEPNID>"\
+                   "<ECEPCNID>0</ECEPCNID>"\
+                   "</Component>"\
+                   "</Components>"
+        self.assertEqual(expected, xml.as_text())
+

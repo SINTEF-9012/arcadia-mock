@@ -49,6 +49,18 @@ In the current version (v0.0.3), requests can specify the type of content they w
 	</ServiceGraph>
 ````
 
+* GET `/components` returns the list of components registered so far
+
+* POST `/components` register a new component, described by an XML snippet as follow:
+````xml
+<Component>
+	<CID>1</CID>
+	<CNID>2</CNID>
+	<CEPNID>3</CEPNID>
+	<ECEPCNID>4</ECEPCNID>\
+</Component>\
+````
+
  * GET `/about`, returns some debug info, such as version number and license.
 
 ## Installation & Usage

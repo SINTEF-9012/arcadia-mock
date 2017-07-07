@@ -9,7 +9,7 @@
 #
 
 
-from arcadiamock.servicegraphs import Visitor, Node, Policy, ServiceGraph, About, MetaData
+from arcadiamock.servicegraphs import Visitor, Component, ComponentList, Node, Policy, ServiceGraph, About, MetaData
 
 import xml.etree.ElementTree as etree
 
@@ -30,6 +30,28 @@ class XMLNode(object):
 
 
 class XMLPrinter(Visitor):
+
+    def visit_component_list(self, components):
+        group = etree.Element("Components")
+        for each_component in components:
+            group.append(each_component.accept(self)._root)
+        return XMLNode(group)
+
+    def visit_component(self, cid, cnid, cepnid, ecepcnid):
+        component = etree.Element("Component")
+        if cid is not None:
+            cid_node = etree.SubElement(component, "CID")
+            cid_node.text = str(cid)
+        if cnid is not None:
+            cnid_node = etree.SubElement(component, "CNID")
+            cnid_node.text = str(cnid)
+        if cepnid is not None:
+            cepnid_node = etree.SubElement(component, "CEPNID")
+            cepnid_node.text = str(cepnid)
+        if ecepcnid is not None:
+            ecepcnid_node = etree.SubElement(component, "ECEPCNID")
+            ecepcnid_node.text = str(ecepcnid)
+        return XMLNode(component)
 
     def visit_service_graph_list(self, graphs):
         root = etree.Element("ServiceGraphs")
@@ -135,6 +157,28 @@ class XMLParser(object):
         for each_node in root:
             values[each_node.tag] = each_node.text
         return MetaData(values)
+
+    def component_from(self, text):
+        node = etree.fromstring(text)
+        return self._component_from_xml(node)
+
+    @staticmethod
+    def _component_from_xml(node):
+        cid = node.find("CID").text
+        cnid = node.find("CNID").text
+        cepnid = node.find("CEPNID").text
+        ecepcnid = node.find("ECEPCNID").text
+        return Component(cid=cid,
+                         cnid=cnid,
+                         cepnid=cepnid,
+                         ecepcnid=ecepcnid)
+
+    def components_from(self, text):
+        collection = etree.fromstring(text)
+        components = []
+        for each_component in collection.iter("Component") or []:
+            components.append(self._component_from_xml(each_component))
+        return ComponentList(components)
 
 
 class TextPrinter(Visitor):

@@ -14,8 +14,9 @@ from arcadiamock import __VERSION__, __SERVICE_NAME__, __LICENSE__
 
 class Store(object):
 
-    def __init__(self):
+    def __init__(self, components=[]):
         self._service_graphs = []
+        self._components = ComponentList(components)
 
     @staticmethod
     def about():
@@ -30,12 +31,14 @@ class Store(object):
     def all_service_graphs(self):
         return ServiceGraphList(self._service_graphs)
 
+    def all_components(self):
+        return self._components
+
+    def register_component(self, component):
+        self._components.add(component)
+
     def component_with_cnid(self, cnid):
-        for each_graph in self._service_graphs:
-            for any_node in each_graph.nodes:
-                if any_node.cnid == cnid:
-                    return any_node
-        return None
+        return self._components.with_cnid(cnid)
 
 
 class Visitor(object):
@@ -107,6 +110,68 @@ class ServiceGraphList(DomainObject):
     @property
     def graphs(self):
         return self._graphs
+
+
+class Component(DomainObject):
+
+    DEFAULT_CID = 0000
+    DEFAULT_CNID = 0000
+    DEFAULT_CEPNID = 0000
+    DEFAULT_ECEPCNID = 0000
+
+    def __init__(self, cid=None, cnid=None, cepnid=None, ecepcnid=None):
+        self._cnid = cnid or self.DEFAULT_CNID
+        self._cid = cid or self.DEFAULT_CID
+        self._cepnid = cepnid or self.DEFAULT_CEPNID
+        self._ecepcnid = ecepcnid or self.DEFAULT_ECEPCNID
+
+    def accept(self, visitor):
+        return visitor.visit_component(
+            self.cid,
+            self.cnid,
+            self.cepnid,
+            self.ecepcnid)
+
+    @property
+    def cnid(self):
+        return self._cnid
+
+    @property
+    def cid(self):
+        return self._cid
+
+    @property
+    def cepnid(self):
+        return self._cepnid
+
+    @property
+    def ecepcnid(self):
+        return self._ecepcnid
+
+
+class ComponentList(DomainObject):
+
+    def __init__(self, components=[]):
+        self._components = components
+
+    @property
+    def count(self):
+        return len(self._components)
+
+    def accept(self, visitor):
+        return visitor.visit_component_list(self._components)
+
+    def with_cnid(self, cnid):
+        for any_component in self._components:
+            if any_component.cnid == cnid:
+                return any_component
+        return None
+
+    def add(self, component):
+        self._components.append(component)
+
+    def __getitem__(self, key):
+        return self._components[key]
 
 
 class ServiceGraph(object):

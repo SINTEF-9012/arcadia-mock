@@ -41,11 +41,22 @@ class Client(object):
         resource = "/components/{0}".format(cnid)
         url = self._url_of(resource)
         response = self._fetch(url)
-        return self._parse.graph_node_from(response.text)
+        return self._parse.component_from(response.text)
 
     def service_graphs(self):
         response = self._fetch(self._url_of("/service_graphs"))
         return self._parse.service_graphs_from(response.text)
+
+    def components(self):
+        response = self._fetch(self._url_of("/components"))
+        return self._parse.components_from(response.text)
+
+    def register_component(self, component):
+        xml = component.accept(self._formatter)
+        response = self._fetch(resource=self._url_of("/components"),
+                               method="POST",
+                               payload=xml.as_text())
+        response.raise_for_status()
 
     def about(self):
         response = self._fetch(self._url_of("/about"))
