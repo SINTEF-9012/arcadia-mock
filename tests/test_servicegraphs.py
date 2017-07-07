@@ -66,6 +66,33 @@ class DefaultComponentTests(TestCase):
         self.assertEqual(Component.DEFAULT_ECEPCNID, self.component.ecepcnid)
 
 
+class DependencyTests(TestCase):
+
+    def setUp(self):
+        self.nid = "foo"
+        self.cepcid = "bar"
+        self.ecepid = "baz"
+        self.dependency = Dependency(nid=self.nid,
+                                     cepcid=self.cepcid,
+                                     ecepid=self.ecepid)
+    def test_cid(self):
+        self.assertEqual(self.nid, self.dependency.nid)
+
+    def test_cepcid(self):
+        self.assertEqual(self.cepcid, self.dependency.cepcid)
+
+    def test_ecepid(self):
+        self.assertEqual(self.ecepid, self.dependency.ecepid)
+
+    def test_accept(self):
+        visitor = MagicMock()
+        self.dependency.accept(visitor)
+        visitor.visit_dependency.assert_called_once_with(
+            self.nid,
+            self.cepcid,
+            self.ecepid)
+
+
 class CustomComponentTests(TestCase):
 
     def setUp(self):

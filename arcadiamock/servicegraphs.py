@@ -14,8 +14,8 @@ from arcadiamock import __VERSION__, __SERVICE_NAME__, __LICENSE__
 
 class Store(object):
 
-    def __init__(self, components=[]):
-        self._service_graphs = []
+    def __init__(self, service_graphs=[], components=[]):
+        self._service_graphs = service_graphs
         self._components = ComponentList(components)
 
     @staticmethod
@@ -61,7 +61,7 @@ class Visitor(object):
 
 class DomainObject(object):
     """
-    Capabilities required for all domain object (i.e., being visitable).
+    Capabilities required for all domain objects (i.e., being visitable).
     """
 
     def accept(self, visitor):
@@ -274,3 +274,28 @@ class MetaData(DomainObject):
     @property
     def count(self):
         return len(self._values)
+
+
+class Dependency(DomainObject):
+
+    def __init__(self, nid=None, cepcid=None, ecepid=None):
+        self._nid = nid
+        self._cepcid = cepcid
+        self._ecepid = ecepid
+
+    def accept(self, visitor):
+        return visitor.visit_dependency(self.nid,
+                                        self.cepcid,
+                                        self.ecepid)
+
+    @property
+    def nid(self):
+        return self._nid
+
+    @property
+    def cepcid(self):
+        return self._cepcid
+
+    @property
+    def ecepid(self):
+        return self._ecepid
