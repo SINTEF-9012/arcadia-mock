@@ -15,7 +15,7 @@ from sys import argv, stdout, exit as sys_exit
 
 from arcadiamock import __SERVICE_NAME__
 from arcadiamock.utils import on_exit
-from arcadiamock.servicegraphs import Store, ServiceGraph, Node
+from arcadiamock.servicegraphs import Store, ServiceGraph, Node, Component
 from arcadiamock.adapters import MimeTypes, XMLPrinter, HTMLPrinter, XMLParser, TextPrinter
 
 
@@ -86,6 +86,11 @@ class Settings(object):
 
 class RESTServer(object):
 
+    DEFAULT_COMPONENTS = [
+        Component(cid="1234", cnid="mysql_id", cepnid=None, ecepcnid=None),
+        Component(cid="2345", cnid="wordpress_id", cepnid=None, ecepcnid=None)
+    ]
+
     def __init__(self, store):
         self._writers = {
             MimeTypes.XML: XMLPrinter(),
@@ -93,9 +98,8 @@ class RESTServer(object):
             MimeTypes.JSON: "{ \"servicegraphs\": [] }"
         }
         self._store = store
-        self._store.add_service_graph(
-            ServiceGraph(
-                nodes=[Node(12, "foo")]))
+        for each_component in self.DEFAULT_COMPONENTS:
+            self._store.register_component(each_component)
 
     def about(self):
         about = self._store.about()
