@@ -117,10 +117,10 @@ class ServiceGraphList(DomainObject):
 
 class Component(DomainObject):
 
-    DEFAULT_CID = 0000
-    DEFAULT_CNID = 0000
-    DEFAULT_CEPNID = 0000
-    DEFAULT_ECEPCNID = 0000
+    DEFAULT_CID = None
+    DEFAULT_CNID = None
+    DEFAULT_CEPNID = None
+    DEFAULT_ECEPCNID = None
 
     def __init__(self, cid=None, cnid=None, cepnid=None, ecepcnid=None):
         self._cnid = cnid or self.DEFAULT_CNID

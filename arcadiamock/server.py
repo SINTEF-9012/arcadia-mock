@@ -87,8 +87,8 @@ class Settings(object):
 class RESTServer(object):
 
     DEFAULT_COMPONENTS = [
-        Component(cid="1234", cnid="mysql_id", cepnid=None, ecepcnid=None),
-        Component(cid="2345", cnid="wordpress_id", cepnid=None, ecepcnid=None)
+        Component(cid="1234", cnid="graph_node_mysql_id", cepnid='mysqltcp_cepcid', ecepcnid='mysqltcp'),
+        Component(cid="2345", cnid="graph_node_wordpress_id", cepnid=None, ecepcnid=None)
     ]
 
     def __init__(self, store):

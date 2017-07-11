@@ -44,6 +44,20 @@ class HTMLNode(object):
 
 class HTMLPrinter(Visitor):
 
+    def visit_component_list(self, components):
+        group = etree.Element("Components")
+        for each_component in components:
+            group.append(each_component.accept(self)._root)
+        return HTMLNode(group)
+
+    def visit_component(self, cid, cnid, cepnid, ecepcnid):
+        component = etree.Element("Component")
+        self._append_node(component, "CID", cid)
+        self._append_node(component, "CNID", cnid)
+        self._append_node(component, "CEPCID", cepnid)
+        self._append_node(component, "ECEPID", ecepcnid)
+        return HTMLNode(component)
+
     def visit_service_graph_list(self, graphs):
         root = etree.Element("ServiceGraphs")
         for each_graph in graphs:
@@ -52,12 +66,9 @@ class HTMLPrinter(Visitor):
 
     def visit_about(self, name, version, code_license):
         root = etree.Element("about")
-        name_node = etree.SubElement(root, "name")
-        name_node.text = name
-        version_node = etree.SubElement(root, "version")
-        version_node.text = version
-        license_node = etree.SubElement(root, "license")
-        license_node.text = code_license
+        self._append_node(root, "name", name)
+        self._append_node(root, "version", version)
+        self._append_node(root, "license", code_license)
         return HTMLNode(root)
 
     def visit_service_graph(self, nodes, policy, metadata):
@@ -69,13 +80,20 @@ class HTMLPrinter(Visitor):
             descriptors.append(each_node.accept(self)._root)
         return HTMLNode(root)
 
-    def visit_node(self, nid, cnid):
+    def visit_node(self, nid, cnid, dependency):
         root = etree.Element("GraphNode")
-        nid_node = etree.SubElement(root, "NID")
-        nid_node.text = str(nid)
-        cnid_node = etree.SubElement(root, "CNID")
-        cnid_node.text = str(cnid)
+        self._append_node(root, "NID", nid)
+        self._append_node(root, "CNID", cnid)
+        if dependency is not None:
+            root.append(dependency.accept(self)._root)
         return HTMLNode(root)
+
+    def visit_dependency(self, nid, cepcid, ecepid):
+        dependency = etree.Element("GraphDependency")
+        self._append_node(dependency, "NID", nid)
+        self._append_node(dependency, "CEPCID", cepcid)
+        self._append_node(dependency, "ECEPID", ecepid)
+        return HTMLNode(dependency)
 
     def visit_metadata(self, values):
         root = etree.Element("DescriptiveSGMetadata")
@@ -83,6 +101,12 @@ class HTMLPrinter(Visitor):
             node = etree.SubElement(root, key.upper())
             node.text = value
         return HTMLNode(root)
+
+    @staticmethod
+    def _append_node(root, name, text):
+        if text is not None:
+            node = etree.SubElement(root, name)
+            node.text = str(text)
 
 
 class XMLPrinter(Visitor):
@@ -97,8 +121,8 @@ class XMLPrinter(Visitor):
         component = etree.Element("Component")
         self._append_node(component, "CID", cid)
         self._append_node(component, "CNID", cnid)
-        self._append_node(component, "CEPNID", cepnid)
-        self._append_node(component, "ECEPCNID", ecepcnid)
+        self._append_node(component, "CEPCID", cepnid)
+        self._append_node(component, "ECEPID", ecepcnid)
         return XMLNode(component)
 
     def visit_service_graph_list(self, graphs):
