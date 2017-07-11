@@ -147,10 +147,10 @@ class XMLParserTests(TestCase):
 
     def test_parse_component(self):
         xml = "<Component>"\
-              "<CID>1</CID>"\
+              "<NID>1</NID>"\
               "<CNID>2</CNID>"\
-              "<CEPNID>3</CEPNID>"\
-              "<ECEPCNID>4</ECEPCNID>"\
+              "<CEPCID>3</CEPCID>"\
+              "<ECEPID>4</ECEPID>"\
               "</Component>"
 
         component = self.parser.component_from(xml)
@@ -163,10 +163,10 @@ class XMLParserTests(TestCase):
     def test_parse_component_list(self):
         xml = "<Components>"\
               "<Component>"\
-              "<CID>1</CID>"\
+              "<NID>1</NID>"\
               "<CNID>2</CNID>"\
-              "<CEPNID>3</CEPNID>"\
-              "<ECEPCNID>4</ECEPCNID>"\
+              "<CEPCID>3</CEPCID>"\
+              "<ECEPID>4</ECEPID>"\
               "</Component>"\
               "</Components>"
 
@@ -265,10 +265,10 @@ class XMLPrinterTests(TestCase):
         xml = component.accept(self.printer)
 
         expected = "<Component>"\
-                   "<CID>1</CID>"\
+                   "<NID>1</NID>"\
                    "<CNID>2</CNID>"\
-                   "<CEPNID>3</CEPNID>"\
-                   "<ECEPCNID>4</ECEPCNID>"\
+                   "<CEPCID>3</CEPCID>"\
+                   "<ECEPID>4</ECEPID>"\
                    "</Component>"
         self.assertEqual(expected, xml.as_text())
 
@@ -287,12 +287,7 @@ class XMLPrinterTests(TestCase):
         xml = components.accept(self.printer)
 
         expected = "<Components>"\
-                   "<Component>"\
-                   "<CID>0</CID>"\
-                   "<CNID>0</CNID>"\
-                   "<CEPNID>0</CEPNID>"\
-                   "<ECEPCNID>0</ECEPCNID>"\
-                   "</Component>"\
+                   "<Component />"\
                    "</Components>"
         self.assertEqual(expected, xml.as_text())
 

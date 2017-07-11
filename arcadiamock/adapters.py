@@ -52,7 +52,7 @@ class HTMLPrinter(Visitor):
 
     def visit_component(self, cid, cnid, cepnid, ecepcnid):
         component = etree.Element("Component")
-        self._append_node(component, "CID", cid)
+        self._append_node(component, "NID", cid)
         self._append_node(component, "CNID", cnid)
         self._append_node(component, "CEPCID", cepnid)
         self._append_node(component, "ECEPID", ecepcnid)
@@ -122,7 +122,7 @@ class XMLPrinter(Visitor):
 
     def visit_component(self, cid, cnid, cepnid, ecepcnid):
         component = etree.Element("Component")
-        self._append_node(component, "CID", cid)
+        self._append_node(component, "NID", cid)
         self._append_node(component, "CNID", cnid)
         self._append_node(component, "CEPCID", cepnid)
         self._append_node(component, "ECEPID", ecepcnid)
@@ -192,14 +192,18 @@ class XMLParser(object):
         code_license = node.find("license").text
         return About(name, version, code_license)
 
+    @classmethod
+    def _fetch_attribute(cls, node, attribute):
+        return node.find(attribute).text if node.find(attribute) is not None else None
+
     def graph_node_from(self, text):
         node = etree.fromstring(text)
         return self._node_from_xml(node)
 
-    @staticmethod
-    def _node_from_xml(node):
-        nid = node.find("NID").text
-        cnid = node.find("CNID").text
+    @classmethod
+    def _node_from_xml(cls, node):
+        nid = cls._fetch_attribute(node, "NID")
+        cnid = cls._fetch_attribute(node, "CNID")
         dependency = node.find("GraphDependency")
         if dependency is not None:
             dependency = XMLParser._dependency_from_xml(dependency)
@@ -209,11 +213,11 @@ class XMLParser(object):
         dependency = etree.fromstring(text)
         return self._dependency_from_xml(dependency)
 
-    @staticmethod
-    def _dependency_from_xml(dependency):
-        nid = dependency.find("NID").text
-        cepcid = dependency.find("CEPCID").text
-        ecepid = dependency.find("ECEPID").text
+    @classmethod
+    def _dependency_from_xml(cls, dependency):
+        nid = cls._fetch_attribute(dependency, "NID")
+        cepcid = cls._fetch_attribute(dependency, "CEPCID")
+        ecepid = cls._fetch_attribute(dependency, "ECEPID")
         return Dependency(nid, cepcid, ecepid)
 
     def runtime_policy_from(self, text):
@@ -261,12 +265,12 @@ class XMLParser(object):
         node = etree.fromstring(text)
         return self._component_from_xml(node)
 
-    @staticmethod
-    def _component_from_xml(node):
-        cid = node.find("CID").text
-        cnid = node.find("CNID").text
-        cepnid = node.find("CEPNID").text
-        ecepcnid = node.find("ECEPCNID").text
+    @classmethod
+    def _component_from_xml(cls, node):
+        cid = cls._fetch_attribute(node, "NID")
+        cnid = cls._fetch_attribute(node, "CNID")
+        cepnid = cls._fetch_attribute(node, "CEPCID")
+        ecepcnid = cls._fetch_attribute(node,"ECEPID")
         return Component(cid=cid,
                          cnid=cnid,
                          cepnid=cepnid,
