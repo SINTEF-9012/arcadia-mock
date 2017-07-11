@@ -72,7 +72,10 @@ class HTMLPrinter(Visitor):
         return HTMLNode(root)
 
     def visit_service_graph(self, nodes, policy, metadata):
-        root =  etree.Element("ServiceGraph")
+        attributes = dict()
+        attributes['xmlns:xsi'] = 'http://www.w3.org/2001/XMLSchema-instance'
+        attributes['xsi:noNamespaceSchemaLocation'] = 'ArcadiaModellingArtefacts.xsd'
+        root =  etree.Element("ServiceGraph", attrib = attributes)
         if metadata is not None:
             root.append(metadata.accept(self)._root)
         descriptors = etree.SubElement(root, "GraphNodeDescriptor")
