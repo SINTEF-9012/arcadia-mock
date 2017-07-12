@@ -42,83 +42,13 @@ class HTMLNode(object):
         return lxmletree.tostring(root, pretty_print=True)
 
 
-class HTMLPrinter(Visitor):
-
-    def visit_component_list(self, components):
-        group = etree.Element("Components")
-        for each_component in components:
-            group.append(each_component.accept(self)._root)
-        return HTMLNode(group)
-
-    def visit_component(self, cid, cnid, cepnid, ecepcnid):
-        component = etree.Element("Component")
-        self._append_node(component, "NID", cid)
-        self._append_node(component, "CNID", cnid)
-        self._append_node(component, "CEPCID", cepnid)
-        self._append_node(component, "ECEPID", ecepcnid)
-        return HTMLNode(component)
-
-    def visit_service_graph_list(self, graphs):
-        root = etree.Element("ServiceGraphs")
-        for each_graph in graphs:
-            root.append(each_graph.accept(self)._root)
-        return HTMLNode(root)
-
-    def visit_about(self, name, version, code_license):
-        root = etree.Element("about")
-        self._append_node(root, "name", name)
-        self._append_node(root, "version", version)
-        self._append_node(root, "license", code_license)
-        return HTMLNode(root)
-
-    def visit_service_graph(self, nodes, policy, metadata):
-        attributes = dict()
-        attributes['xmlns:xsi'] = 'http://www.w3.org/2001/XMLSchema-instance'
-        attributes['xsi:noNamespaceSchemaLocation'] = 'ArcadiaModellingArtefacts.xsd'
-        root =  etree.Element("ServiceGraph", attrib = attributes)
-        if metadata is not None:
-            root.append(metadata.accept(self)._root)
-        descriptors = etree.SubElement(root, "GraphNodeDescriptor")
-        for each_node in nodes:
-            descriptors.append(each_node.accept(self)._root)
-        return HTMLNode(root)
-
-    def visit_node(self, nid, cnid, dependency):
-        root = etree.Element("GraphNode")
-        self._append_node(root, "NID", nid)
-        self._append_node(root, "CNID", cnid)
-        if dependency is not None:
-            root.append(dependency.accept(self)._root)
-        return HTMLNode(root)
-
-    def visit_dependency(self, nid, cepcid, ecepid):
-        dependency = etree.Element("GraphDependency")
-        self._append_node(dependency, "NID", nid)
-        self._append_node(dependency, "CEPCID", cepcid)
-        self._append_node(dependency, "ECEPID", ecepid)
-        return HTMLNode(dependency)
-
-    def visit_metadata(self, values):
-        root = etree.Element("DescriptiveSGMetadata")
-        for key, value in values.items():
-            node = etree.SubElement(root, key.upper())
-            node.text = value
-        return HTMLNode(root)
-
-    @staticmethod
-    def _append_node(root, name, text):
-        if text is not None:
-            node = etree.SubElement(root, name)
-            node.text = str(text)
-
-
 class XMLPrinter(Visitor):
 
     def visit_component_list(self, components):
         group = etree.Element("Components")
         for each_component in components:
             group.append(each_component.accept(self)._root)
-        return XMLNode(group)
+        return self._wrap(group)
 
     def visit_component(self, cid, cnid, cepnid, ecepcnid):
         component = etree.Element("Component")
@@ -126,20 +56,20 @@ class XMLPrinter(Visitor):
         self._append_node(component, "CNID", cnid)
         self._append_node(component, "CEPCID", cepnid)
         self._append_node(component, "ECEPID", ecepcnid)
-        return XMLNode(component)
+        return self._wrap(component)
 
     def visit_service_graph_list(self, graphs):
         root = etree.Element("ServiceGraphs")
         for each_graph in graphs:
             root.append(each_graph.accept(self)._root)
-        return XMLNode(root)
+        return self._wrap(root)
 
     def visit_about(self, name, version, code_license):
         root = etree.Element("about")
         self._append_node(root, "name", name)
         self._append_node(root, "version", version)
         self._append_node(root, "license", code_license)
-        return XMLNode(root)
+        return self._wrap(root)
 
     def visit_service_graph(self, nodes, policy, metadata):
         root =  etree.Element("ServiceGraph")
@@ -148,7 +78,7 @@ class XMLPrinter(Visitor):
         descriptors = etree.SubElement(root, "GraphNodeDescriptor")
         for each_node in nodes:
             descriptors.append(each_node.accept(self)._root)
-        return XMLNode(root)
+        return self._wrap(root)
 
     def visit_node(self, nid, cnid, dependency):
         root = etree.Element("GraphNode")
@@ -156,27 +86,38 @@ class XMLPrinter(Visitor):
         self._append_node(root, "CNID", cnid)
         if dependency is not None:
             root.append(dependency.accept(self)._root)
-        return XMLNode(root)
+        return self._wrap(root)
 
     def visit_dependency(self, nid, cepcid, ecepid):
         dependency = etree.Element("GraphDependency")
         self._append_node(dependency, "NID", nid)
         self._append_node(dependency, "CEPCID", cepcid)
         self._append_node(dependency, "ECEPID", ecepid)
-        return XMLNode(dependency)
+        return self._wrap(dependency)
 
     def visit_metadata(self, values):
         root = etree.Element("DescriptiveSGMetadata")
         for key, value in values.items():
             node = etree.SubElement(root, key.upper())
             node.text = value
-        return XMLNode(root)
+        return self._wrap(root)
 
     @staticmethod
     def _append_node(root, name, text):
         if text is not None:
             node = etree.SubElement(root, name)
             node.text = str(text)
+
+    @staticmethod
+    def _wrap(node):
+        return XMLNode(node)
+
+
+class HTMLPrinter(XMLPrinter):
+
+    @staticmethod
+    def _wrap(node):
+        return HTMLNode(node)
 
 
 class XMLParser(object):
