@@ -53,7 +53,7 @@ class Client(object):
 
     def register_component(self, component):
         xml = component.accept(self._formatter)
-        response = self._fetch(resource=self._url_of("/components"),
+        response = self._fetch(resource=self._url_of("/register_component"),
                                method="POST",
                                payload=xml.as_text())
         response.raise_for_status()

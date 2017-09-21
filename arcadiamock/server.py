@@ -145,7 +145,7 @@ class RESTServer(object):
                          view_func=self.register_service_graph)
         app.add_url_rule("/components",
                          view_func=self.components)
-        app.add_url_rule("/components",
+        app.add_url_rule("/register_component",
                          methods=["POST"],
                          view_func=self.register_component)
         app.add_url_rule("/components/<cnid>",
